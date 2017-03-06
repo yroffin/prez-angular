@@ -55,14 +55,15 @@ import { PrezHomeComponent } from './component/prez-home/prez-home.component';
 import { Prez3dCanvasComponent } from './component/prez-3d-canvas/prez-3d-canvas.component';
 
 import { LoggerService } from './service/logger.service';
+import { TweenFactoryService } from './service/tween-factory.service';
 
 /**
  * default route definition
  */
 const appRoutes: Routes = [
   { path: 'three', component: Prez3dCanvasComponent },
-  { path: '', component: PrezHomeComponent },
-  { path: '**', component: PrezHomeComponent }
+  { path: '', component: Prez3dCanvasComponent },
+  { path: '**', component: Prez3dCanvasComponent }
 ];
 
 @NgModule({
@@ -113,7 +114,7 @@ const appRoutes: Routes = [
      */
     RouterModule.forRoot(appRoutes)
   ],
-  providers: [LoggerService],
+  providers: [LoggerService, TweenFactoryService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

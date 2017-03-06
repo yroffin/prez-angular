@@ -17,42 +17,26 @@
 import { Component, Renderer } from '@angular/core';
 import { HostBinding, HostListener, ElementRef } from '@angular/core';
 import { AfterViewInit, OnInit } from '@angular/core';
+
 import * as THREE from 'three';
 import * as TWEEN from 'tween.js';
 import * as _ from 'lodash';
 
 import { Message, TreeNode, TreeTable } from 'primeng/primeng';
+
+import { Render } from '../../interface/render.interface';
+
 import { LoggerService } from '../../service/logger.service';
+import { TweenFactoryService } from '../../service/tween-factory.service';
 
-class Link {
-  private previous: Link;
-  private next: Link;
-
-  constructor(private name: string, private mesh: THREE.Mesh) {
-  }
-
-  public setLinked(_previous: Link, _next: Link) {
-    this.previous = _previous;
-    this.next = _next;
-  }
-
-  public getMesh() {
-    return this.mesh;
-  }
-  public getPrevious() {
-    return this.previous;
-  }
-  public getNext() {
-    return this.next;
-  }
-}
+import { Link } from '../../model/link.model';
 
 @Component({
   selector: 'app-prez-3d-canvas',
   templateUrl: './prez-3d-canvas.component.html',
   styleUrls: ['./prez-3d-canvas.component.css']
 })
-export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
+export class Prez3dCanvasComponent implements Render, OnInit, AfterViewInit {
 
   /**
    * internal threejs members
@@ -71,7 +55,6 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
   private mouse: THREE.Vector2 = new THREE.Vector2();
   private intersects: THREE.Intersection[];
-  private selected: THREE.Object3D[];
 
   // all pieces of this document
   private pieces: Array<Link> = new Array<Link>();
@@ -79,13 +62,19 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
   // current target pieces (first piece at the begining)
   private target: Link;
 
+  // selected by pointer
+  private selected: any = {};
+
   /**
    * constructor
    * @param _el base element used for resize handler and threejs hanchor
    * @param _renderer local renderer
    */
-  constructor(private _el: ElementRef, private _renderer: Renderer, private _logger: LoggerService) {
-
+  constructor(
+    private _el: ElementRef,
+    private _renderer: Renderer,
+    private _factory: TweenFactoryService,
+    private _logger: LoggerService) {
   }
 
   /**
@@ -127,6 +116,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
   private register(name: string, mesh: THREE.Mesh): Link {
     let link = new Link(name, mesh);
     link.setLinked(link, link);
+    link.setUuid(mesh.uuid);
     this.pieces.push(link);
     return link;
   }
@@ -137,6 +127,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
    */
   private linkMeshAtTheEnd(name: string, mesh: THREE.Mesh): Link {
     let link = new Link(name, mesh);
+    link.setUuid(mesh.uuid);
     let first: Link = _.first(this.pieces);
     let last: Link = _.last(this.pieces);
     last.setLinked(last.getPrevious(), link)
@@ -146,82 +137,103 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
     return link;
   }
 
+  /**
+   * init component
+   */
   ngOnInit() {
-    let global = this._renderer.listenGlobal('document', 'mousemove', (event) => {
-      // calculate mouse position in normalized device coordinates
-      // (-1 to +1) for both components
-      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    this.componentInit();
+  }
 
-      // update the picking ray with the camera and mouse position
-      this.raycaster.setFromCamera(this.mouse, this.camera);
+  /**
+   * view init
+   */
+  ngAfterViewInit() {
+    this.viewInit();
+  }
 
-      // calculate objects intersecting the picking ray
-      this.intersects = this.raycaster.intersectObjects(this.scene.children);
-
-      this.selected = [];
-      for (var i = 0; i < this.intersects.length; i++) {
-        this.selected.push(this.intersects[i].object);
-        this.intersects[i].object.rotation.x += 0.01;
-      }
-
-      this.render();
+  /**
+   * component init
+   */
+  private componentInit(): void {
+    // mousemove event
+    this._renderer.listenGlobal('document', 'mousemove', (event) => {
+      this.capture(event);
     })
-
+    // keydown
     this._renderer.listenGlobal('document', 'keydown', (event) => {
-      let ctx;
       if (event.code === "ArrowRight") {
-        let previous = this.target;
-        this.target = this.target.getNext();
-        this.goto(previous, this.target);
-        this.lookAt(previous, this.target);
+        this.next();
+        return;
       }
       if (event.code === "ArrowLeft") {
-        let previous = this.target;
-        this.target = this.target.getPrevious();
-        this.goto(previous, this.target);
-        this.lookAt(previous, this.target);
+        this.previous();
+        return;
       }
     });
   }
 
-  private goto(previous: Link, target: Link): TWEEN.Tween {
-    let from = Object.assign({}, this.camera.position);
-    let to = Object.assign({}, target.getMesh().position);
-    to.z += 140;
-    let that = this;
-    // Place camera on x axis
-    return new TWEEN.Tween(from).to(to, 2000)
-      .easing(TWEEN.Easing.Quintic.InOut).onUpdate(function () {
-        that.camera.position.x = this.x;
-        that.camera.position.y = this.y;
-        that.camera.position.z = this.z;
-        that.render();
-      }).onComplete(function () {
-        that.camera.position.x = this.x;
-        that.camera.position.y = this.y;
-        that.camera.position.z = this.z;
-        that.render();
-      }).start();
+  /**
+   * capture selection
+   */
+  private capture(event: any): void {
+    // calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    // update the picking ray with the camera and mouse position
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    // calculate objects intersecting the picking ray
+    this.intersects = this.raycaster.intersectObjects(this.scene.children);
+
+    // object is selected
+    if (this.intersects.length > 0) {
+      this.selected.uuid = this.intersects[0].object.uuid;
+      this.selected.piece = _.find(this.pieces, (piece) => {
+        return piece.getMesh().uuid === this.selected.uuid;
+      })
+    } else {
+      this.selected.uuid = null;
+    }
   }
 
-  private lookAt(previous: Link, target: Link): TWEEN.Tween {
-    let from = Object.assign({}, previous.getMesh().position);
-    let to = Object.assign({}, target.getMesh().position);
-    let that = this;
-    // Place camera on x axis
-    return new TWEEN.Tween(from).to(to, 2000)
-      .easing(TWEEN.Easing.Quintic.InOut).onUpdate(function () {
-        that.camera.lookAt(this);
-        that.render();
-      }).onComplete(function () {
-        that.camera.lookAt(this);
-        that.render();
-      }).start();
+  /**
+   * next slide
+   */
+  private next(): void {
+    let previous = this.target;
+    this.target = this.target.getNext();
+    this._factory.goto(this.camera, this, previous, this.target);
+    this._factory.lookAt(this.camera, this, previous, this.target);
   }
 
-  ngAfterViewInit() {
-    this.init();
+  /**
+   * previous slide
+   */
+  private previous(): void {
+    let previous = this.target;
+    this.target = this.target.getPrevious();
+    this._factory.goto(this.camera, this, previous, this.target);
+    this._factory.lookAt(this.camera, this, previous, this.target);
+  }
+
+  /**
+   * init the view
+   */
+  private viewInit(): void {
+    // init the scene
+    this._logger.info("Init scene");
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+    this.camera.position.z = 1000;
+    this.addNode(this.camera.name, "Camera", this.camera.position, this.camera.rotation);
+    this.loader = new THREE.TextureLoader();
+    this.renderer = new THREE.WebGLRenderer();
+    this.onResize();
+    document.getElementById("threejs").appendChild(this.renderer.domElement);
+
+    // load the scene
     this.add("1", { x: 0, y: 0, z: 0 });
     this.add("2", { x: 400, y: 0, z: 0 });
     this.add("3", { x: 400, y: 400, z: 0 });
@@ -234,10 +246,18 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
     this.run();
   }
 
-  private render() {
+  /**
+   * render this scene
+   */
+  public render() {
     this.renderer.render(this.scene, this.camera);
   }
 
+  /**
+   * add a new slide
+   * @param name 
+   * @param position 
+   */
   private add(name: string, position: any) {
     this._logger.info("add new piece");
     let geometry = new THREE.PlaneBufferGeometry(320, 200);
@@ -252,7 +272,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
     this.addNode(mesh.name, "Plane", mesh.position, mesh.rotation);
     this.scene.add(mesh);
     // register this new mesh
-    if(this.pieces.length == 0) {
+    if (this.pieces.length == 0) {
       this.target = this.register(name, mesh);
     } else {
       this.linkMeshAtTheEnd(name, mesh);
@@ -265,22 +285,13 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
     });
   }
 
+  /**
+   * calback runner
+   */
   private run() {
     setTimeout(() => {
       TWEEN.update();
       this.run();
     }, 1);
-  }
-
-  private init() {
-    this._logger.info("Init scene");
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
-    this.camera.position.z = 1000;
-    this.addNode(this.camera.name, "Camera", this.camera.position, this.camera.rotation);
-    this.loader = new THREE.TextureLoader();
-    this.renderer = new THREE.WebGLRenderer();
-    this.onResize();
-    document.getElementById("threejs").appendChild(this.renderer.domElement);
   }
 }
