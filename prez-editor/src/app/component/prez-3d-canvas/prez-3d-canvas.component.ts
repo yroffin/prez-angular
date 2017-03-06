@@ -159,6 +159,12 @@ export class Prez3dCanvasComponent implements Render, OnInit, AfterViewInit {
     this._renderer.listenGlobal('document', 'mousemove', (event) => {
       this.capture(event);
     })
+    this._renderer.listenGlobal('document', 'click', (event) => {
+      if (this.selected && this.selected.piece) {
+        this._factory.goto(this.camera, this, this.target, this.selected.piece);
+        this._factory.lookAt(this.camera, this, this.target, this.selected.piece);
+      }
+    })
     // keydown
     this._renderer.listenGlobal('document', 'keydown', (event) => {
       if (event.code === "ArrowRight") {
