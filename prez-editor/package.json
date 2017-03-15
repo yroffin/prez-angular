@@ -32,7 +32,9 @@
     "three": "0.84.0",
     "@types/three": "0.83.4",
     "tween.js": "16.6.0",
-    "@types/tween.js": "0.0.31"
+    "@types/tween.js": "0.0.31",
+    "three-orbit-controls": "82.1.0",
+    "three-orbitcontrols-ts": "0.1.2"
   },
   "devDependencies": {
     "@angular/cli": "1.0.0-rc.1",

@@ -35,10 +35,10 @@ export class TweenFactoryService {
    * @param previous 
    * @param target 
    */
-  public goto(camera: THREE.PerspectiveCamera, renderer: Render, previous: Link, target: Link): TWEEN.Tween {
+  public goto(camera: THREE.PerspectiveCamera, renderer: Render, previous: Link, target: Link, where: number): TWEEN.Tween {
     let from = Object.assign({}, camera.position);
     let to = Object.assign({}, target.getMesh().position);
-    to.z += 140;
+    to.z += where;
     let that = this;
     // Place camera on x axis
     return new TWEEN.Tween(from).to(to, 2000)

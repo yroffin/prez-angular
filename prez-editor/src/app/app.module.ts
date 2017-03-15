@@ -22,6 +22,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AppComponent } from './app.component';
 
+import { OverlayPanelModule } from 'primeng/primeng';
 import { ButtonModule } from 'primeng/primeng';
 import { ChartModule } from 'primeng/primeng';
 import { DataTableModule, SharedModule } from 'primeng/primeng';
@@ -53,6 +54,7 @@ import { ToggleButtonModule } from 'primeng/primeng';
 
 import { PrezHomeComponent } from './component/prez-home/prez-home.component';
 import { Prez3dCanvasComponent } from './component/prez-3d-canvas/prez-3d-canvas.component';
+import { Prez3dSceneComponent } from './component/prez-3d-scene/prez-3d-scene.component';
 
 import { LoggerService } from './service/logger.service';
 import { TweenFactoryService } from './service/tween-factory.service';
@@ -70,7 +72,8 @@ const appRoutes: Routes = [
   declarations: [
     AppComponent,
     PrezHomeComponent,
-    Prez3dCanvasComponent
+    Prez3dCanvasComponent,
+    Prez3dSceneComponent
   ],
   imports: [
     BrowserModule,
@@ -95,6 +98,7 @@ const appRoutes: Routes = [
     GrowlModule,
     StepsModule,
     ButtonModule,
+    OverlayPanelModule,
     PanelMenuModule,
     DialogModule,
     FieldsetModule,

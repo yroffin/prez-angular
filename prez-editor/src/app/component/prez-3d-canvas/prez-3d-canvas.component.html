@@ -1,85 +1,87 @@
-<div (window:resize)="onResize()" id="threejs" style="width: 100%;" #div (window:resize)="elHeight = div.getBoundingClientRect()">
-  <!-- ThreeJS here -->
-</div>
-
-
-<p-tabView>
-  <p-tabPanel header="Element(s)">
-    <p-treeTable [value]="nodes">
-      <p-column field="id" header="Id"></p-column>
-      <p-column field="type" header="Type"></p-column>
-      <p-column field="position.x" header="PX"></p-column>
-      <p-column field="position.y" header="PY"></p-column>
-      <p-column field="position.z" header="PZ"></p-column>
-      <p-column field="rotation.x" header="RX"></p-column>
-      <p-column field="rotation.y" header="RY"></p-column>
-      <p-column field="rotation.z" header="RZ"></p-column>
-    </p-treeTable>
-  </p-tabPanel>
-  <p-tabPanel header="Slide(s)">
-    <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
-      <div class="ui-grid-row">
-        <div class="ui-grid-col-4">
-          Précédent
-        </div>
-        <div class="ui-grid-col-8">
-          {{target && target.getPrevious().name}}
-        </div>
-      </div>
-      <div class="ui-grid-row">
-        <div class="ui-grid-col-4">
-          Courant
-        </div>
-        <div class="ui-grid-col-8">
-          {{target && target.name}}
-        </div>
-      </div>
-      <div class="ui-grid-row">
-        <div class="ui-grid-col-4">
-          Suivant
-        </div>
-        <div class="ui-grid-col-8">
-          {{target && target.getNext().name}}
-        </div>
-      </div>
-    </div>
-  </p-tabPanel>
-  <p-tabPanel header="Grille">
-    <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
-      <div class="ui-grid-row">
-        <div class="ui-grid-col-4">
-          mouse.x
-        </div>
-        <div class="ui-grid-col-8">
-          {{mouse && mouse.x}}
-        </div>
-      </div>
-      <div class="ui-grid-row">
-        <div class="ui-grid-col-4">
-          mouse.y
-        </div>
-        <div class="ui-grid-col-8">
-          {{mouse && mouse.x}}
-        </div>
-      </div>
-      <div class="ui-grid-row">
-        <div class="ui-grid-col-4">
-          Slide
-        </div>
-        <div class="ui-grid-col-8">
-          {{selected && selected.piece && selected.piece.name}}
-        </div>
-      </div>
-      <div class="ui-grid-row">
-        <div class="ui-grid-col-4">
-          UUID
-        </div>
-        <div class="ui-grid-col-8">
-          {{selected && selected.uuid}}
-        </div>
-      </div>
-    </div>
-  </p-tabPanel>
-</p-tabView>
-
-<p-growl [value]="msgs"></p-growl>
+<table>
+  <tr>
+    <td>
+      <app-prez-3d-scene></app-prez-3d-scene>
+    </td>
+      <p-tabView>
+        <p-tabPanel header="Element(s)">
+          <p-treeTable [value]="scene.nodes">
+            <p-column field="id" header="Id"></p-column>
+            <p-column field="type" header="Type"></p-column>
+            <p-column field="position.x" header="PX"></p-column>
+            <p-column field="position.y" header="PY"></p-column>
+            <p-column field="position.z" header="PZ"></p-column>
+            <p-column field="rotation.x" header="RX"></p-column>
+            <p-column field="rotation.y" header="RY"></p-column>
+            <p-column field="rotation.z" header="RZ"></p-column>
+          </p-treeTable>
+        </p-tabPanel>
+        <p-tabPanel header="Slide(s)">
+          <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-4">
+                Précédent
+              </div>
+              <div class="ui-grid-col-8">
+                {{scene.target && scene.target.getPrevious().name}}
+              </div>
+            </div>
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-4">
+                Courant
+              </div>
+              <div class="ui-grid-col-8">
+                {{scene.target && scene.target.name}}
+              </div>
+            </div>
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-4">
+                Suivant
+              </div>
+              <div class="ui-grid-col-8">
+                {{scene.target && scene.target.getNext().name}}
+              </div>
+            </div>
+          </div>
+        </p-tabPanel>
+        <p-tabPanel header="Grille">
+          <div class="ui-grid ui-grid-responsive ui-grid-pad ui-fluid">
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-4">
+                mouse.x
+              </div>
+              <div class="ui-grid-col-8">
+                {{scene.mouse && scene.mouse.x}}
+              </div>
+            </div>
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-4">
+                mouse.y
+              </div>
+              <div class="ui-grid-col-8">
+                {{scene.mouse && scene.mouse.x}}
+              </div>
+            </div>
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-4">
+                Slide
+              </div>
+              <div class="ui-grid-col-8">
+                {{scene.selected && scene.selected.piece && scene.selected.piece.name}}
+              </div>
+            </div>
+            <div class="ui-grid-row">
+              <div class="ui-grid-col-4">
+                UUID
+              </div>
+              <div class="ui-grid-col-8">
+                {{scene.selected && scene.selected.uuid}}
+              </div>
+            </div>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
+    <td>
+    </td>
+  </tr>
+</table>
