@@ -47,6 +47,7 @@ import { SplitButtonModule } from 'primeng/primeng';
 import { ToolbarModule } from 'primeng/primeng';
 import { TooltipModule } from 'primeng/primeng';
 import { TreeTableModule } from 'primeng/primeng';
+import { TreeModule } from 'primeng/primeng';
 import { CalendarModule } from 'primeng/primeng';
 import { SpinnerModule } from 'primeng/primeng';
 import { SliderModule } from 'primeng/primeng';
@@ -58,6 +59,8 @@ import { Prez3dSceneComponent } from './component/prez-3d-scene/prez-3d-scene.co
 
 import { LoggerService } from './service/logger.service';
 import { TweenFactoryService } from './service/tween-factory.service';
+import { Prez3dElementCameraComponent } from './component/prez-3d-element-camera/prez-3d-element-camera.component';
+import { Prez3dElementMeshComponent } from './component/prez-3d-element-mesh/prez-3d-element-mesh.component';
 
 /**
  * default route definition
@@ -73,7 +76,9 @@ const appRoutes: Routes = [
     AppComponent,
     PrezHomeComponent,
     Prez3dCanvasComponent,
-    Prez3dSceneComponent
+    Prez3dSceneComponent,
+    Prez3dElementCameraComponent,
+    Prez3dElementMeshComponent
   ],
   imports: [
     BrowserModule,
@@ -108,6 +113,7 @@ const appRoutes: Routes = [
     ToolbarModule,
     TooltipModule,
     TreeTableModule,
+    TreeModule,
     ChartModule,
     CalendarModule,
     SpinnerModule,

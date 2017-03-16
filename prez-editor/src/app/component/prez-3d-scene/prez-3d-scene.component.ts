@@ -52,7 +52,22 @@ export class Prez3dSceneComponent implements OnInit {
   /**
    * internal
    */
-  private nodes: TreeNode[] = [];
+  private nodesCamera: TreeNode[] = [];
+  private nodesMesh: TreeNode[] = [];
+  private elements: TreeNode[] = [
+    {
+      "label": "Camera(s)",
+      "expandedIcon": "fa-folder-open",
+      "collapsedIcon": "fa-folder",
+      "children": this.nodesCamera
+    },
+    {
+      "label": "Mesh(s)",
+      "expandedIcon": "fa-folder-open",
+      "collapsedIcon": "fa-folder",
+      "children": this.nodesMesh
+    }
+  ];
 
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
   private mouse: THREE.Vector2 = new THREE.Vector2();
@@ -96,28 +111,42 @@ export class Prez3dSceneComponent implements OnInit {
 
   @HostListener('keydown', ['$event'])
   private handleKeydown(event) {
-    console.error(event);
   }
 
   /**
-   * register a node
+   * register a camera
    * @param name name of this node
    * @param type type (threejs type)
    * @param position threejs position
    * @param rotation threejs rotation
    */
-  private addNode(name: string, type: string, position: THREE.Vector3, rotation: THREE.Euler): void {
+  private addCamera(camera: THREE.PerspectiveCamera): void {
     let node: TreeNode =
       {
-        "data": {
-          "id": name,
-          "type": type,
-          "position": position,
-          "rotation": rotation
-        },
+        "label": camera.name,
+        "icon": "fa-file-word-o",
+        "data": camera,
         "children": []
       };
-    this.nodes.push(node);
+    this.nodesCamera.push(node);
+  }
+
+  /**
+   * register a mesh
+   * @param name name of this node
+   * @param type type (threejs type)
+   * @param position threejs position
+   * @param rotation threejs rotation
+   */
+  private addMesh(mesh: THREE.Mesh): void {
+    let node: TreeNode =
+      {
+        "label": mesh.name,
+        "icon": "fa-file-word-o",
+        "data": mesh,
+        "children": []
+      };
+    this.nodesMesh.push(node);
   }
 
   /**
@@ -167,25 +196,6 @@ export class Prez3dSceneComponent implements OnInit {
    * component init
    */
   private componentInit(): void {
-    // keydown
-    this._renderer.listenGlobal('document', 'keydown', (event) => {
-      if (event.key === "z") {
-        this.reset(-10);
-        return;
-      }
-      if (event.key === "s") {
-        this.reset(10);
-        return;
-      }
-      if (event.code === "ArrowRight") {
-        this.next(event);
-        return;
-      }
-      if (event.code === "ArrowLeft") {
-        this.previous(event);
-        return;
-      }
-    });
   }
 
   /**
@@ -264,10 +274,10 @@ export class Prez3dSceneComponent implements OnInit {
 
     this.camera = new THREE.PerspectiveCamera(75, this.canvas.width / this.canvas.height, 1, 10000);
     this.camera.position.z = 1000;
-    this.addNode(this.camera.name, "Camera", this.camera.position, this.camera.rotation);
+    this.addCamera(this.camera);
 
     // Cf. https://github.com/nicolaspanel/three-orbitcontrols-ts/blob/master/src/index.ts
-    this.controls = new OrbitControls(this.camera);
+    this.controls = new OrbitControls(this.camera, this.canvas);
 
     // load the scene
     this.add("1", { x: 0, y: 0, z: 0 }, "00071");
@@ -302,9 +312,8 @@ export class Prez3dSceneComponent implements OnInit {
     mesh.position.x = position.x;
     mesh.position.y = position.y;
     mesh.position.z = position.z;
-    //mesh.position.z = nextPlace.z;
     // register this node
-    this.addNode(mesh.name, "Plane", mesh.position, mesh.rotation);
+    this.addMesh(mesh);
     this.scene.add(mesh);
     // register this new mesh
     if (this.pieces.length == 0) {

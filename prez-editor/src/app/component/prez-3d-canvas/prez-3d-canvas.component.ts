@@ -29,6 +29,8 @@ import { Message, TreeNode, TreeTable } from 'primeng/primeng';
 import { Render } from '../../interface/render.interface';
 
 import { Prez3dSceneComponent } from '../prez-3d-scene/prez-3d-scene.component';
+import { Prez3dElementCameraComponent } from '../prez-3d-element-camera/prez-3d-element-camera.component';
+import { Prez3dElementMeshComponent } from '../prez-3d-element-mesh/prez-3d-element-mesh.component';
 import { LoggerService } from '../../service/logger.service';
 import { TweenFactoryService } from '../../service/tween-factory.service';
 
@@ -42,6 +44,10 @@ import { Link } from '../../model/link.model';
 export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
 
   @ViewChild(Prez3dSceneComponent) scene: Prez3dSceneComponent
+  @ViewChild(Prez3dElementCameraComponent) camera: Prez3dElementCameraComponent
+  @ViewChild(Prez3dElementMeshComponent) mesh: Prez3dElementMeshComponent
+
+  msgs: Message[];
 
   /**
    * constructor
@@ -62,5 +68,30 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
    * view init
    */
   ngAfterViewInit() {
+  }
+
+  /**
+   * 
+   * @param event select node event
+   */
+  nodeSelect(event) {
+    if (event.node.data && event.node.data.constructor) {
+      this.msgs = [];
+      this.msgs.push({ severity: 'info', summary: 'Node Selected', detail: event.node.data.constructor.name });
+      this.camera.target = null;
+      this.mesh.target = null;
+      if (event.node.data.constructor.name === "PerspectiveCamera") {
+        this.camera.target = event.node.data;
+      } else {
+        if (event.node.data.constructor.name === "Mesh") {
+          this.mesh.target = event.node.data;
+        }
+      }
+    }
+  }
+
+  nodeUnselect(event) {
+    this.msgs = [];
+    this.msgs.push({ severity: 'info', summary: 'Node Unselected', detail: event.node.label });
   }
 }
