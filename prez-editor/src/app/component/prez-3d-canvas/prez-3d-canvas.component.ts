@@ -17,6 +17,8 @@
 import { Component, Renderer } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { AfterViewInit, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable';
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three-orbitcontrols-ts';
@@ -34,7 +36,13 @@ import { Prez3dElementMeshComponent } from '../prez-3d-element-mesh/prez-3d-elem
 import { LoggerService } from '../../service/logger.service';
 import { TweenFactoryService } from '../../service/tween-factory.service';
 
+import { addSlides, addOrUpdateSlide, SlidesAppState } from '../../store/slides.store';
+import { resetCameras, addOrUpdateCamera, CamerasAppState } from '../../store/cameras.store';
+
+import { Slide } from '../../model/slide.model';
+import { Camera } from '../../model/camera.model';
 import { Link } from '../../model/link.model';
+import { SlideItem } from '../../model/slide-item.model';
 
 @Component({
   selector: 'app-prez-3d-canvas',
@@ -49,13 +57,138 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
 
   msgs: Message[];
 
+  private slides: Observable<Array<Slide>> = new Observable<Array<Slide>>();
+
   /**
    * constructor
    * @param _el base element used for resize handler and threejs hanchor
    * @param _renderer local renderer
    */
   constructor(
+    private store: Store<SlidesAppState>
   ) {
+    /**
+     * register to store Slides
+     */
+    this.slides = this.store.select('Slides');
+    this.load();
+  }
+
+  /**
+   * 
+   * @param name dispatch slide loading
+   * @param url 
+   * @param position 
+   */
+  private dispatchSlideLoading(id: string, name: string, url: string, position: THREE.Vector3) {
+    this.store.dispatch({
+      type: addOrUpdateSlide,
+      payload: new Slide(id, name, url, position)
+    });
+  }
+
+  /**
+   * 
+   * @param name dispatch slide loading
+   * @param url 
+   * @param position 
+   */
+  private dispatchCameraReset(name: string, position: THREE.Vector3) {
+    this.store.dispatch({
+      type: addOrUpdateCamera,
+      payload: new Camera(name, position)
+    });
+  }
+
+  /**
+   * load a sample data
+   */
+  public load() {
+    let sample: any = {
+      "#1": {
+        "name": "Slide 001",
+        "url": "/assets/svg/00071.svg",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "#2": {
+        "name": "Slide 002",
+        "url": "/assets/svg/00071b.svg",
+        "position": {
+          "x": 400,
+          "y": 0,
+          "z": 0
+        }
+      },
+      "#3": {
+        "name": "Slide 003",
+        "url": "/assets/svg/00071.svg",
+        "position": {
+          "x": 400,
+          "y": 400,
+          "z": 0
+        }
+      },
+      "#4": {
+        "name": "Slide 004",
+        "url": "/assets/svg/00071b.svg",
+        "position": {
+          "x": 0,
+          "y": 400,
+          "z": 0
+        }
+      },
+      "#5": {
+        "name": "Slide 005",
+        "url": "/assets/svg/00071.svg",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": -400
+        }
+      },
+      "#6": {
+        "name": "Slide 006",
+        "url": "/assets/svg/00071b.svg",
+        "position": {
+          "x": 400,
+          "y": 0,
+          "z": -40000
+        }
+      },
+      "#7": {
+        "name": "Slide 007",
+        "url": "/assets/svg/00071.svg",
+        "position": {
+          "x": 400,
+          "y": 400,
+          "z": -400
+        }
+      },
+      "#8": {
+        "name": "Slide 008",
+        "url": "/assets/svg/00071b.svg",
+        "position": {
+          "x": 0,
+          "y": 400,
+          "z": -400
+        }
+      }
+    };
+    _.each(sample, (slide, key) => {
+      this.dispatchSlideLoading(key, slide.name, slide.url, new THREE.Vector3(slide.position.x, slide.position.y, slide.position.z));
+    });
+  }
+
+  /**
+   * load a sample data
+   */
+  public add() {
+    this.dispatchSlideLoading("#9", "Slide 001", '/assets/svg/00071.svg', new THREE.Vector3(0, 0, 0));
+    this.dispatchCameraReset("Default", new THREE.Vector3(0, 0, 0));
   }
 
   /**
@@ -83,8 +216,8 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
       if (event.node.data.constructor.name === "PerspectiveCamera") {
         this.camera.target = event.node.data;
       } else {
-        if (event.node.data.constructor.name === "Mesh") {
-          this.mesh.target = event.node.data;
+        if (event.node.data.mesh && event.node.data.mesh.constructor && event.node.data.mesh.constructor.name === "Mesh") {
+          this.mesh.target = <SlideItem> event.node.data;
         }
       }
     }

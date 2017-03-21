@@ -17,6 +17,9 @@
 import { Component, Renderer } from '@angular/core';
 import { HostBinding, HostListener, ElementRef } from '@angular/core';
 import { AfterViewInit, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three-orbitcontrols-ts';
@@ -30,8 +33,10 @@ import { Render } from '../../interface/render.interface';
 
 import { LoggerService } from '../../service/logger.service';
 import { TweenFactoryService } from '../../service/tween-factory.service';
+import { SlidesAppState } from '../../store/slides.store';
 
-import { Link } from '../../model/link.model';
+import { Slide } from '../../model/slide.model';
+import { SlideItem } from '../../model/slide-item.model';
 
 @Component({
   selector: 'app-prez-3d-scene',
@@ -74,19 +79,50 @@ export class Prez3dSceneComponent implements OnInit {
   private intersects: THREE.Intersection[];
 
   // all pieces of this document
-  private pieces: Array<Link> = new Array<Link>();
+  private pieces: Array<SlideItem> = new Array<SlideItem>();
 
   // current target pieces (first piece at the begining)
-  private target: Link;
+  private target: SlideItem;
 
   // selected by pointer
   private selected: any = {};
 
+  // store
+  private slides: Observable<Array<Slide>> = new Observable<Array<Slide>>();
+  private slide: Observable<SlideItem> = new Observable<SlideItem>();
+
+  /**
+   * constructor
+   * @param _el 
+   * @param _renderer 
+   * @param _factory 
+   * @param _logger 
+   * @param store 
+   */
   constructor(
     private _el: ElementRef,
     private _renderer: Renderer,
     private _factory: TweenFactoryService,
-    private _logger: LoggerService) {
+    private _logger: LoggerService,
+    private store: Store<SlidesAppState>) {
+    /**
+     * register to store Slides
+     */
+    this.slides = this.store.select('Slides');
+    this.slide = this.store.select('Slide');
+
+    // load the scene
+    this.slide.subscribe((item) => {
+      if(!item.isEmpty()) {
+        let current = this.target;
+        if(current === undefined) {
+          current = item;
+        }
+        this.target = item;
+        this._logger.info("SELECT/slide", current, this.target);
+        this.lookAtMesh(current.getMesh(), item.getMesh());
+      }
+    });
   }
 
   @HostListener('mousemove', ['$event'])
@@ -104,13 +140,29 @@ export class Prez3dSceneComponent implements OnInit {
   private handleDblclick(event) {
     console.log(event, this.selected);
     if (this.selected && this.selected.piece) {
-      this._factory.goto(this.camera, this, this.target, this.selected.piece, 140);
-      this._factory.lookAt(this.camera, this, this.target, this.selected.piece);
+      // this._factory.goto(this.camera, this, this.target, this.selected.piece, 140);
+      // this._factory.lookAt(this.camera, this, this.target, this.selected.piece);
     }
   }
 
   @HostListener('keydown', ['$event'])
   private handleKeydown(event) {
+    if (event.key === "z") {
+      this.reset(-10);
+      return;
+    }
+    if (event.key === "s") {
+      this.reset(10);
+      return;
+    }
+    if (event.code === "ArrowRight") {
+      this.next(event);
+      return;
+    }
+    if (event.code === "ArrowLeft") {
+      this.previous(event);
+      return;
+    }
   }
 
   /**
@@ -138,12 +190,12 @@ export class Prez3dSceneComponent implements OnInit {
    * @param position threejs position
    * @param rotation threejs rotation
    */
-  private addMesh(mesh: THREE.Mesh): void {
+  private addMesh(slide: Slide, mesh: THREE.Mesh): void {
     let node: TreeNode =
       {
         "label": mesh.name,
         "icon": "fa-file-word-o",
-        "data": mesh,
+        "data": new SlideItem(slide, mesh),
         "children": []
       };
     this.nodesMesh.push(node);
@@ -153,10 +205,9 @@ export class Prez3dSceneComponent implements OnInit {
    * register new mesh
    * @param mesh the mesh
    */
-  private register(name: string, mesh: THREE.Mesh): Link {
-    let link = new Link(name, mesh);
+  private register(slide: Slide, mesh: THREE.Mesh): SlideItem {
+    let link = new SlideItem(slide, mesh);
     link.setLinked(link, link);
-    link.setUuid(mesh.uuid);
     this.pieces.push(link);
     return link;
   }
@@ -165,11 +216,10 @@ export class Prez3dSceneComponent implements OnInit {
    * register new mesh
    * @param mesh the mesh
    */
-  private linkMeshAtTheEnd(name: string, mesh: THREE.Mesh): Link {
-    let link = new Link(name, mesh);
-    link.setUuid(mesh.uuid);
-    let first: Link = _.first(this.pieces);
-    let last: Link = _.last(this.pieces);
+  private linkMeshAtTheEnd(slide: Slide, mesh: THREE.Mesh): SlideItem {
+    let link = new SlideItem(slide, mesh);
+    let first: SlideItem = _.first(this.pieces);
+    let last: SlideItem = _.last(this.pieces);
     last.setLinked(last.getPrevious(), link)
     link.setLinked(last, _.first(this.pieces));
     this.pieces.push(link);
@@ -205,8 +255,8 @@ export class Prez3dSceneComponent implements OnInit {
     if (this.selected && this.selected.piece) {
       let previous = this.selected.piece;
       this.target = this.selected.piece;
-      this._factory.goto(this.camera, this, previous, this.target, 140);
-      this._factory.lookAt(this.camera, this, previous, this.target);
+      // this._factory.goto(this.camera, this, previous, this.target, 140);
+      // this._factory.lookAt(this.camera, this, previous, this.target);
     }
   }
 
@@ -240,10 +290,19 @@ export class Prez3dSceneComponent implements OnInit {
    * next slide
    */
   private next(event: any): void {
-    let previous = this.target;
+    let current = this.target;
     this.target = this.target.getNext();
-    this._factory.goto(this.camera, this, previous, this.target, 140);
-    this._factory.lookAt(this.camera, this, previous, this.target);
+    this.lookAtMesh(current.getMesh(), this.target.getMesh());
+  }
+
+  /**
+   * focus on this mesh
+   * @param current
+   * @param target 
+   */
+  private lookAtMesh(current: THREE.Mesh, target: THREE.Mesh): void {
+    this._factory.goto(this.camera, this, current, target, 140);
+    this._factory.lookAt(this.camera, this, current, target);
   }
 
   /**
@@ -252,8 +311,8 @@ export class Prez3dSceneComponent implements OnInit {
   private previous(event: any): void {
     let previous = this.target;
     this.target = this.target.getPrevious();
-    this._factory.goto(this.camera, this, previous, this.target, 140);
-    this._factory.lookAt(this.camera, this, previous, this.target);
+    // this._factory.goto(this.camera, this, previous, this.target, 140);
+    // this._factory.lookAt(this.camera, this, previous, this.target);
   }
 
   private controls: OrbitControls;
@@ -273,6 +332,7 @@ export class Prez3dSceneComponent implements OnInit {
     this.renderer.setViewport(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
 
     this.camera = new THREE.PerspectiveCamera(75, this.canvas.width / this.canvas.height, 1, 10000);
+    this.camera.name = "default";
     this.camera.position.z = 1000;
     this.addCamera(this.camera);
 
@@ -280,15 +340,19 @@ export class Prez3dSceneComponent implements OnInit {
     this.controls = new OrbitControls(this.camera, this.canvas);
 
     // load the scene
-    this.add("1", { x: 0, y: 0, z: 0 }, "00071");
-    this.add("2", { x: 400, y: 0, z: 0 }, "00071b");
-    this.add("3", { x: 400, y: 400, z: 0 }, "00071");
-    this.add("4", { x: 0, y: 400, z: 0 }, "00071b");
-    this.add("5", { x: 0, y: 0, z: -400 }, "00071");
-    this.add("6", { x: 400, y: 0, z: -40000 }, "00071b");
-    this.add("7", { x: 400, y: 400, z: -400 }, "00071b");
-    this.add("8", { x: 0, y: 400, z: -400 }, "00071");
-    this._logger.info("pieces", this.pieces);
+    this.slides.subscribe((slides) => {
+      this._logger.info("Add some new slides", slides);
+      _.each(slides, (slide) => {
+        // assert this slide is not associate with a mesh
+        let index = _.findIndex(this.nodesMesh, (mesh) => {
+          return mesh.data.slide.getId() == slide.getId();
+        });
+        if(index === -1) {
+          this.add(slide);
+        }
+      });
+      this._logger.info("pieces", this.pieces);
+    });
   }
 
   /**
@@ -303,26 +367,26 @@ export class Prez3dSceneComponent implements OnInit {
    * @param name 
    * @param position 
    */
-  private add(name: string, position: any, svg: string) {
+  private add(slide: Slide) {
     this._logger.info("add new piece");
     let geometry = new THREE.PlaneBufferGeometry(200, 220);
     let material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
     let mesh = new THREE.Mesh(geometry, material);
-    mesh.name = name;
-    mesh.position.x = position.x;
-    mesh.position.y = position.y;
-    mesh.position.z = position.z;
+    mesh.name = slide.getName();
+    mesh.position.x = slide.getPosition().x;
+    mesh.position.y = slide.getPosition().y;
+    mesh.position.z = slide.getPosition().z;
     // register this node
-    this.addMesh(mesh);
+    this.addMesh(slide, mesh);
     this.scene.add(mesh);
     // register this new mesh
     if (this.pieces.length == 0) {
-      this.target = this.register(name, mesh);
+      this.target = this.register(slide, mesh);
     } else {
-      this.linkMeshAtTheEnd(name, mesh);
+      this.linkMeshAtTheEnd(slide, mesh);
     }
     this.render();
-    this.loader.load('/assets/svg/' + svg + '.svg', (texture) => {
+    this.loader.load(slide.getUrl(), (texture) => {
       let material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
       mesh.material.setValues(material);
       this.render();

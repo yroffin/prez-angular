@@ -34,7 +34,9 @@
     "tween.js": "16.6.0",
     "@types/tween.js": "0.0.31",
     "three-orbit-controls": "82.1.0",
-    "three-orbitcontrols-ts": "0.1.2"
+    "three-orbitcontrols-ts": "0.1.2",
+    "@ngrx/core": "^1.2.0",
+    "@ngrx/store": "^2.2.1"
   },
   "devDependencies": {
     "@angular/cli": "1.0.0-rc.1",

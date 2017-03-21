@@ -25,7 +25,7 @@
         <p-treeTable [value]="scene.nodes">
           <p-column field="id" header="Id"></p-column>
           <p-column field="type" header="Type"></p-column>
-          <p-column field="position.x" header="PX"></p-column>
+          <p-column field="position.xx" header="PX"></p-column>
           <p-column field="position.y" header="PY"></p-column>
           <p-column field="position.z" header="PZ"></p-column>
           <p-column field="rotation.x" header="RX"></p-column>
@@ -40,7 +40,7 @@
               Précédent
             </div>
             <div class="ui-grid-col-8">
-              {{scene.target && scene.target.getPrevious().name}}
+              {{scene.target && scene.target.getPrevious() && scene.target.getPrevious().name}}
             </div>
           </div>
           <div class="ui-grid-row">
@@ -56,7 +56,7 @@
               Suivant
             </div>
             <div class="ui-grid-col-8">
-              {{scene.target && scene.target.getNext().name}}
+              {{scene.target && scene.target.getNext() && scene.target.getNext().name}}
             </div>
           </div>
         </div>

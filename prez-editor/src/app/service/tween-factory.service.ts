@@ -35,9 +35,9 @@ export class TweenFactoryService {
    * @param previous 
    * @param target 
    */
-  public goto(camera: THREE.PerspectiveCamera, renderer: Render, previous: Link, target: Link, where: number): TWEEN.Tween {
+  public goto(camera: THREE.PerspectiveCamera, renderer: Render, previous: THREE.Mesh, target: THREE.Mesh, where: number): TWEEN.Tween {
     let from = Object.assign({}, camera.position);
-    let to = Object.assign({}, target.getMesh().position);
+    let to = Object.assign({}, target.position);
     to.z += where;
     let that = this;
     // Place camera on x axis
@@ -62,9 +62,9 @@ export class TweenFactoryService {
    * @param previous 
    * @param target 
    */
-  public lookAt(camera: THREE.PerspectiveCamera, renderer: Render, previous: Link, target: Link): TWEEN.Tween {
-    let from = Object.assign({}, previous.getMesh().position);
-    let to = Object.assign({}, target.getMesh().position);
+  public lookAt(camera: THREE.PerspectiveCamera, renderer: Render, previous: THREE.Mesh, target: THREE.Mesh): TWEEN.Tween {
+    let from = Object.assign({}, previous.position);
+    let to = Object.assign({}, target.position);
     let that = this;
     // Place camera on x axis
     return new TWEEN.Tween(from).to(to, 2000)

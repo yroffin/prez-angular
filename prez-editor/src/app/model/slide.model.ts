@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-export class Link {
-  private previous: Link;
-  private next: Link;
-  private uuid: string;
+export class Slide {
+    private id: string;
+    private position: THREE.Vector3;
+    private name: string;
+    private url: string;
+    
+    constructor(id?: string, name?: string, url?: string, position?: THREE.Vector3) {
+        this.id = id;
+        this.name = name;
+        this.url = url;
+        this.position = position;
+    }
 
-  constructor(private name: string, private mesh: THREE.Mesh) {
-  }
-
-  public setLinked(_previous: Link, _next: Link) {
-    this.previous = _previous;
-    this.next = _next;
-  }
-
-  public setUuid(_uuid: string) {
-    this.uuid = _uuid;
-  }
-
-  public getMesh() {
-    return this.mesh;
-  }
-  public getPrevious() {
-    return this.previous;
-  }
-  public getNext() {
-    return this.next;
-  }
+    public getPosition(): THREE.Vector3 {
+        return this.position;
+    }
+    public getName(): string {
+        return this.name;
+    }
+    public getUrl(): string {
+        return this.url;
+    }
+    public getId(): string {
+        return this.id;
+    }
 }

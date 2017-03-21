@@ -1,14 +1,24 @@
-<table *ngIf=target >
-  <tr>
-    <td>id</td><td><input type="text" pInputText [(ngModel)]="target.id" disabled /></td>
-  </tr>
-  <tr>
-    <td>uuid</td><td><input size="38" type="text" pInputText [(ngModel)]="target.uuid" /></td>
-  </tr>
-  <tr>
-    <td>position</td><td><input size="5" type="text" pInputText [(ngModel)]="target.position.x" /><input size="5" type="text" pInputText [(ngModel)]="target.position.y" /><input size="5" type="text" pInputText [(ngModel)]="target.position.z" /></td>
-  </tr>
-  <tr>
-    <td>rotation</td><td><input size="5" type="text" pInputText [(ngModel)]="target.rotation.x" /><input size="5" type="text" pInputText [(ngModel)]="target.rotation.y" /><input size="5" type="text" pInputText [(ngModel)]="target.rotation.z" /></td>
-  </tr>
-</table>
+<div *ngIf=target>
+  <table>
+    <tr>
+      <td>id</td>
+      <td><input type="text" pInputText [(ngModel)]="target.mesh.id" disabled /></td>
+    </tr>
+    <tr>
+      <td>uuid</td>
+      <td><input size="38" type="text" pInputText [(ngModel)]="target.mesh.uuid" /></td>
+    </tr>
+    <tr>
+      <td>position</td>
+      <td><input size="5" type="text" pInputText [(ngModel)]="target.mesh.position.x" /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.position.y"
+        /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.position.z" /></td>
+    </tr>
+    <tr>
+      <td>rotation</td>
+      <td><input size="5" type="text" pInputText [(ngModel)]="target.mesh.rotation.x" /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.rotation.y"
+        /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.rotation.z" /></td>
+    </tr>
+  </table>
+
+  <button pButton type="text" (click)="select(target)" label="select"></button>
+</div>

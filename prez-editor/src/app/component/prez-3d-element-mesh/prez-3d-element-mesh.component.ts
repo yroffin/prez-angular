@@ -15,7 +15,13 @@
  */
 
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable';
+
 import * as THREE from 'three';
+
+import { selectSlide, SlideItemAppState } from '../../store/slides.store';
+import { SlideItem } from '../../model/slide-item.model';
 
 @Component({
   selector: 'app-prez-3d-element-mesh',
@@ -27,13 +33,25 @@ export class Prez3dElementMeshComponent implements OnInit {
   /**
    * internal threejs members
    */
-  public target: THREE.Mesh;
+  public target: SlideItem;
 
-  constructor() {
+  constructor(
+    private store: Store<SlideItemAppState>
+  ) {
 
   }
 
   ngOnInit() {
   }
 
+  /**
+   * select this slide
+   * @param slide
+   */
+  private select(item: SlideItem) {
+    this.store.dispatch({
+      type: selectSlide,
+      payload: item
+    });
+  }
 }
