@@ -17,7 +17,7 @@
 import { Component, Renderer } from '@angular/core';
 import { HostBinding, HostListener, ElementRef } from '@angular/core';
 import { AfterViewInit, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, State } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
@@ -36,7 +36,7 @@ import { TweenFactoryService } from '../../service/tween-factory.service';
 import { SlidesAppState } from '../../store/slides.store';
 
 import { Slide } from '../../model/slide.model';
-import { SlideItem } from '../../model/slide-item.model';
+import { SlideItem, SlideEvent } from '../../model/slide-item.model';
 
 @Component({
   selector: 'app-prez-3d-scene',
@@ -90,6 +90,7 @@ export class Prez3dSceneComponent implements OnInit {
   // store
   private slides: Observable<Array<Slide>> = new Observable<Array<Slide>>();
   private slide: Observable<SlideItem> = new Observable<SlideItem>();
+  private slideEvent: Observable<SlideEvent> = new Observable<SlideEvent>();
 
   /**
    * constructor
@@ -108,20 +109,28 @@ export class Prez3dSceneComponent implements OnInit {
     /**
      * register to store Slides
      */
-    this.slides = this.store.select('Slides');
-    this.slide = this.store.select('Slide');
+    this.slides = this.store.select<Array<Slide>>('Slides');
+    this.slide = this.store.select<SlideItem>('Slide');
+    this.slideEvent = this.store.select<SlideEvent>('SlideEvent');
 
-    // load the scene
+    // register to slide selection
     this.slide.subscribe((item) => {
-      if(!item.isEmpty()) {
-        let current = this.target;
-        if(current === undefined) {
-          current = item;
+      if(item.isEmpty) {
+        if(!item.isEmpty()) {
+          let current = this.target;
+          if(current === undefined) {
+            current = item;
+          }
+          this.target = item;
+          this.lookAtMesh(current.getMesh(), item.getMesh());
         }
-        this.target = item;
-        this._logger.info("SELECT/slide", current, this.target);
-        this.lookAtMesh(current.getMesh(), item.getMesh());
       }
+    });
+
+    // register to slide event
+    this.slideEvent.subscribe((item) => {
+      console.info("event", item, this);
+      this.render();
     });
   }
 
@@ -359,7 +368,9 @@ export class Prez3dSceneComponent implements OnInit {
    * render this scene
    */
   public render() {
-    this.renderer.render(this.scene, this.camera);
+    if(this.renderer) {
+      this.renderer.render(this.scene, this.camera);
+    }
   }
 
   /**

@@ -17,6 +17,22 @@
 import * as THREE from 'three';
 import { Slide } from './slide.model';
 
+export class SlideEvent {
+    private slide: SlideItem;
+
+    constructor() {
+    }
+
+    public setSlideItem(slide: SlideItem): SlideEvent {
+        this.slide = slide;
+        return this;
+    }
+
+    public getSlideItem(): SlideItem {
+        return this.slide;
+    }
+}
+
 export class SlideItem {
     private previous: SlideItem;
     private next: SlideItem;

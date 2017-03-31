@@ -36,13 +36,12 @@ import { Prez3dElementMeshComponent } from '../prez-3d-element-mesh/prez-3d-elem
 import { LoggerService } from '../../service/logger.service';
 import { TweenFactoryService } from '../../service/tween-factory.service';
 
-import { addSlides, addOrUpdateSlide, SlidesAppState } from '../../store/slides.store';
+import { addSlides, addOrUpdateSlide, SlidesAppState, selectSlideItemEvent } from '../../store/slides.store';
 import { resetCameras, addOrUpdateCamera, CamerasAppState } from '../../store/cameras.store';
 
 import { Slide } from '../../model/slide.model';
 import { Camera } from '../../model/camera.model';
-import { Link } from '../../model/link.model';
-import { SlideItem } from '../../model/slide-item.model';
+import { SlideItem, SlideEvent } from '../../model/slide-item.model';
 
 @Component({
   selector: 'app-prez-3d-canvas',
@@ -80,10 +79,10 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
    * @param url 
    * @param position 
    */
-  private dispatchSlideLoading(id: string, name: string, url: string, position: THREE.Vector3) {
+  private dispatchSlideLoading(id: string, name: string, url: string, position: THREE.Vector3, rotation: THREE.Vector3) {
     this.store.dispatch({
       type: addOrUpdateSlide,
-      payload: new Slide(id, name, url, position)
+      payload: new Slide(id, name, url, position, rotation)
     });
   }
 
@@ -112,7 +111,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 0,
           "y": 0,
           "z": 0
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       },
       "#2": {
         "name": "Slide 002",
@@ -121,7 +120,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 400,
           "y": 0,
           "z": 0
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       },
       "#3": {
         "name": "Slide 003",
@@ -130,7 +129,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 400,
           "y": 400,
           "z": 0
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       },
       "#4": {
         "name": "Slide 004",
@@ -139,7 +138,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 0,
           "y": 400,
           "z": 0
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       },
       "#5": {
         "name": "Slide 005",
@@ -148,7 +147,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 0,
           "y": 0,
           "z": -400
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       },
       "#6": {
         "name": "Slide 006",
@@ -157,7 +156,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 400,
           "y": 0,
           "z": -40000
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       },
       "#7": {
         "name": "Slide 007",
@@ -166,7 +165,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 400,
           "y": 400,
           "z": -400
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       },
       "#8": {
         "name": "Slide 008",
@@ -175,11 +174,17 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
           "x": 0,
           "y": 400,
           "z": -400
-        }
+        }, "rotation": {"x": 0, "y": 0, "z": 0}
       }
     };
     _.each(sample, (slide, key) => {
-      this.dispatchSlideLoading(key, slide.name, slide.url, new THREE.Vector3(slide.position.x, slide.position.y, slide.position.z));
+      this.dispatchSlideLoading(
+        key,
+        slide.name,
+        slide.url,
+        new THREE.Vector3(slide.position.x, slide.position.y, slide.position.z),
+        new THREE.Vector3(slide.rotation.x, slide.rotation.y, slide.rotation.z)
+        );
     });
   }
 
@@ -187,7 +192,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
    * load a sample data
    */
   public add() {
-    this.dispatchSlideLoading("#9", "Slide 001", '/assets/svg/00071.svg', new THREE.Vector3(0, 0, 0));
+    this.dispatchSlideLoading("#9", "Slide 001", '/assets/svg/00071.svg', new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
     this.dispatchCameraReset("Default", new THREE.Vector3(0, 0, 0));
   }
 
@@ -214,10 +219,15 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
       this.camera.target = null;
       this.mesh.target = null;
       if (event.node.data.constructor.name === "PerspectiveCamera") {
-        this.camera.target = event.node.data;
       } else {
         if (event.node.data.mesh && event.node.data.mesh.constructor && event.node.data.mesh.constructor.name === "Mesh") {
-          this.mesh.target = <SlideItem> event.node.data;
+          /**
+           * send selection event
+           */
+          this.store.dispatch({
+            type: selectSlideItemEvent,
+            payload: new SlideEvent().setSlideItem(<SlideItem> event.node.data)
+          });
         }
       }
     }

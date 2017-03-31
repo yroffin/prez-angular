@@ -1,8 +1,8 @@
-<div *ngIf=target>
+<div *ngIf="target && slide">
   <table>
     <tr>
       <td>id</td>
-      <td><input type="text" pInputText [(ngModel)]="target.mesh.id" disabled /></td>
+      <td><input type="text" pInputText [(ngModel)]="slide.id" disabled /></td>
     </tr>
     <tr>
       <td>uuid</td>
@@ -10,15 +10,22 @@
     </tr>
     <tr>
       <td>position</td>
-      <td><input size="5" type="text" pInputText [(ngModel)]="target.mesh.position.x" /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.position.y"
-        /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.position.z" /></td>
+      <td>
+        <p-spinner #spinnerPosX size="6" [(ngModel)]="slide.position.x"></p-spinner>
+        <p-spinner #spinnerPosY size="6" [(ngModel)]="slide.position.y"></p-spinner>
+        <p-spinner #spinnerPosZ size="6" [(ngModel)]="slide.position.z"></p-spinner>
+      </td>
     </tr>
     <tr>
       <td>rotation</td>
-      <td><input size="5" type="text" pInputText [(ngModel)]="target.mesh.rotation.x" /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.rotation.y"
-        /><input size="5" type="text" pInputText [(ngModel)]="target.mesh.rotation.z" /></td>
+      <td>
+        <p-spinner #spinnerRotX size="6" [(ngModel)]="slide.rotation.x"></p-spinner>
+        <p-spinner #spinnerRotY size="6" [(ngModel)]="slide.rotation.y"></p-spinner>
+        <p-spinner #spinnerRotZ size="6" [(ngModel)]="slide.rotation.z"></p-spinner>
+      </td>
     </tr>
   </table>
 
-  <button pButton type="text" (click)="select(target)" label="select"></button>
+  <button pButton type="text" (click)="next(target)" label="next"></button>
+  <button pButton type="text" (click)="previous(target)" label="previous"></button>
 </div>

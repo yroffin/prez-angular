@@ -17,18 +17,51 @@
 export class Slide {
     private id: string;
     private position: THREE.Vector3;
+    private rotation: THREE.Vector3;
     private name: string;
     private url: string;
     
-    constructor(id?: string, name?: string, url?: string, position?: THREE.Vector3) {
+    /**
+     * constructor
+     * @param id 
+     * @param name 
+     * @param url 
+     * @param position 
+     * @param rotation 
+     */
+    constructor(id: string, name: string, url: string, position: THREE.Vector3, rotation: THREE.Vector3) {
         this.id = id;
         this.name = name;
         this.url = url;
         this.position = position;
+        this.rotation = rotation;
+    }
+
+    public setRotX(value: number) {
+        this.rotation.x = value;
+    }
+    public setRotY(value: number) {
+        this.rotation.y = value;
+    }
+    public setRotZ(value: number) {
+        this.rotation.z = value;
+    }
+
+    public setPosX(value: number) {
+        this.position.x = value;
+    }
+    public setPosY(value: number) {
+        this.position.y = value;
+    }
+    public setPosZ(value: number) {
+        this.position.z = value;
     }
 
     public getPosition(): THREE.Vector3 {
         return this.position;
+    }
+    public getRotation(): THREE.Vector3 {
+        return this.rotation;
     }
     public getName(): string {
         return this.name;

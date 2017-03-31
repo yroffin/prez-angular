@@ -66,7 +66,7 @@ import { StoreModule } from '@ngrx/store';
 import { SlidesStore } from './store/slides.store';
 import { CamerasStore } from './store/cameras.store';
 import { Slide } from './model/slide.model';
-import { SlideItem } from './model/slide-item.model';
+import { SlideItem, SlideEvent } from './model/slide-item.model';
 
 /**
  * default route definition
@@ -135,10 +135,12 @@ const appRoutes: Routes = [
     StoreModule.provideStore({
       Slides: SlidesStore.slidesReducer,
       Slide: SlidesStore.slideReducer,
+      SlideEvent: SlidesStore.slideEventReducer,
       Cameras: CamerasStore.camerasReducer
     }, {
       Slides: [],
       Slide: new SlideItem(),
+      SlideEvent: new SlideEvent(),
       Cameras: []
     })
   ],
