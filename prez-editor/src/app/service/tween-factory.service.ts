@@ -21,7 +21,6 @@ import * as TWEEN from 'tween.js';
 import * as _ from 'lodash';
 
 import { Render } from '../interface/render.interface';
-import { Link } from '../model/link.model';
 
 @Injectable()
 export class TweenFactoryService {

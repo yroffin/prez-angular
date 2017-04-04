@@ -39,7 +39,7 @@ export class SlideItem {
     private slide: Slide;
     private mesh: THREE.Mesh;
 
-    constructor(slide?: Slide, mesh?: THREE.Mesh) {
+    constructor(slide: Slide, mesh: THREE.Mesh) {
         this.slide = slide;
         this.mesh = mesh;
     }

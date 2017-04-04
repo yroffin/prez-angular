@@ -95,7 +95,7 @@ export class Prez3dElementMeshComponent implements OnInit, AfterViewInit {
      * register to slide event
      */
     slideEventStore.subscribe((item) => {
-      if (item.getSlideItem()) {
+      if (item && item.getSlideItem()) {
         this.target = item.getSlideItem();
         this.slide = item.getSlideItem().getSlide();
       }

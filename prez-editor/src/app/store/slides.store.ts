@@ -25,6 +25,7 @@ export const addOrUpdateSlide = 'addOrUpdateSlide';
 export const selectSlide = 'selectSlide';
 
 export const selectSlideItemEvent = 'selectSlideItemEvent';
+export const focusSlide = 'focusSlide';
 export const updateSlidePosX = 'updateSlidePosX';
 export const updateSlidePosY = 'updateSlidePosY';
 export const updateSlidePosZ = 'updateSlidePosZ';
@@ -35,11 +36,11 @@ export const updateSlideRotZ = 'updateSlideRotZ';
 export const selectSlideEvent = 'selectSlideEvent';
 
 export interface SlidesAppState {
-  slides: Array<Slide>;
+    slides: Array<Slide>;
 }
 
 export interface SlideItemAppState {
-  item: SlideItem;
+    item: SlideItem;
 }
 
 export class SlidesStore {
@@ -52,25 +53,29 @@ export class SlidesStore {
     public static slidesReducer(state: Array<Slide> = [], action: Action): Array<Slide> {
         switch (action.type) {
             case addSlides:
-                return Object.assign(new Array<Slide>(), state, <Array<Slide>> action.payload);
-
+                return Object.assign(new Array<Slide>(), state, <Array<Slide>>action.payload);
+            /**
+             * add or update a slide
+             */
             case addOrUpdateSlide:
-                /**
-                 * find this slide by index
-                 */
-                let index = _.findIndex(state, (slide) => {
-                    return slide.getId() === (<Slide> action.payload).getId()
-                });
-                /**
-                 * then create it or update it
-                 */
-                if(index === -1) {
-                    return [...state, <Slide> action.payload];
-                } else {
-                    return state.map((slide) => {
-                        let source2: Slide = <Slide> action.payload;
-                        return slide.getId() === (<Slide> action.payload).getId() ? Object.assign({}, slide, source2) : slide;
+                {
+                    /**
+                     * find this slide by index
+                     */
+                    let index = _.findIndex(state, (slide) => {
+                        return slide.getId() === (<Slide>action.payload).getId()
                     });
+                    /**
+                     * then create it or update it
+                     */
+                    if (index === -1) {
+                        return [...state, <Slide>action.payload];
+                    } else {
+                        return state.map((slide) => {
+                            let target: Slide = <Slide>action.payload;
+                            return slide.getId() === (<Slide>action.payload).getId() ? Object.assign(Slide.factory(), slide, target) : slide;
+                        });
+                    }
                 }
 
             default:
@@ -86,58 +91,62 @@ export class SlidesStore {
     public static slideReducer(state: SlideItem, action: Action): SlideItem {
         switch (action.type) {
             case selectSlide:
-                return Object.assign(new SlideItem(), state, <SlideItem> action.payload);
+                return Object.assign({}, state, <SlideItem>action.payload);
 
             case selectSlideItemEvent:
-                let slideEvent = <SlideEvent> action.payload;
-                return Object.assign(new SlideItem(), state, <SlideItem> (<SlideEvent> action.payload).getSlideItem());
-                
+                /**
+                 * select this slide
+                 */
+                let slideEvent = <SlideEvent>action.payload;
+                let target = <SlideItem>(<SlideEvent>action.payload).getSlideItem();
+                return Object.assign(new SlideItem(null, null), state, <SlideItem>(<SlideEvent>action.payload).getSlideItem());
+
             case updateSlidePosX:
                 /**
                  * fix slide position
                  */
-                state.getSlide().setPosX(<number> action.payload);
-                state.getMesh().position.x = <number> action.payload;
+                state.getSlide().setPosX(<number>action.payload);
+                state.getMesh().position.x = <number>action.payload;
                 return state;
 
             case updateSlidePosY:
                 /**
                  * fix slide position
                  */
-                state.getSlide().setPosY(<number> action.payload);
-                state.getMesh().position.y = <number> action.payload;
+                state.getSlide().setPosY(<number>action.payload);
+                state.getMesh().position.y = <number>action.payload;
                 return state;
 
             case updateSlidePosZ:
                 /**
                  * fix slide position
                  */
-                state.getSlide().setPosZ(<number> action.payload);
-                state.getMesh().position.z = <number> action.payload;
+                state.getSlide().setPosZ(<number>action.payload);
+                state.getMesh().position.z = <number>action.payload;
                 return state;
 
             case updateSlideRotX:
                 /**
                  * fix slide position
                  */
-                state.getSlide().setRotX(<number> action.payload);
-                state.getMesh().rotation.x = <number> action.payload * Math.PI / 180;
+                state.getSlide().setRotX(<number>action.payload);
+                state.getMesh().rotation.x = <number>action.payload * Math.PI / 180;
                 return state;
 
             case updateSlideRotY:
                 /**
                  * fix slide position
                  */
-                state.getSlide().setRotY(<number> action.payload);
-                state.getMesh().rotation.y = <number> action.payload * Math.PI / 180;
+                state.getSlide().setRotY(<number>action.payload);
+                state.getMesh().rotation.y = <number>action.payload * Math.PI / 180;
                 return state;
 
             case updateSlideRotZ:
                 /**
                  * fix slide position
                  */
-                state.getSlide().setRotZ(<number> action.payload);
-                state.getMesh().rotation.z = <number> action.payload * Math.PI / 180;
+                state.getSlide().setRotZ(<number>action.payload);
+                state.getMesh().rotation.z = <number>action.payload * Math.PI / 180;
                 return state;
 
             default:
@@ -154,25 +163,25 @@ export class SlidesStore {
         switch (action.type) {
 
             case selectSlideItemEvent:
-                return Object.assign(new SlideEvent(), state, <SlideEvent> action.payload);
+                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
 
             case updateSlidePosX:
-                return Object.assign(new SlideEvent(), state, <SlideEvent> action.payload);
+                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
 
             case updateSlidePosY:
-                return Object.assign(new SlideEvent(), state, <SlideEvent> action.payload);
+                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
 
             case updateSlidePosZ:
-                return Object.assign(new SlideEvent(), state, <SlideEvent> action.payload);
+                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
 
             case updateSlideRotX:
-                return Object.assign(new SlideEvent(), state, <SlideEvent> action.payload);
+                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
 
             case updateSlideRotY:
-                return Object.assign(new SlideEvent(), state, <SlideEvent> action.payload);
+                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
 
             case updateSlideRotZ:
-                return Object.assign(new SlideEvent(), state, <SlideEvent> action.payload);
+                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
 
             default:
                 return state;

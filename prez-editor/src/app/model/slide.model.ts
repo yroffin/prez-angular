@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+import * as THREE from 'three';
+
 export class Slide {
     private id: string;
     private position: THREE.Vector3;
     private rotation: THREE.Vector3;
     private name: string;
     private url: string;
+    private focused: boolean;
     
     /**
      * constructor
@@ -37,9 +40,22 @@ export class Slide {
         this.rotation = rotation;
     }
 
+    public static factory(): Slide {
+        return new Slide('','','', new THREE.Vector3(), new THREE.Vector3());
+    }
+
+    public setFocused(value: boolean): void {
+        this.focused = value;
+    }
+
+    public isFocused(): boolean {
+        return this.focused === true;
+    }
+
     public setRotX(value: number) {
         this.rotation.x = value;
     }
+
     public setRotY(value: number) {
         this.rotation.y = value;
     }

@@ -139,8 +139,8 @@ const appRoutes: Routes = [
       Cameras: CamerasStore.camerasReducer
     }, {
       Slides: [],
-      Slide: new SlideItem(),
-      SlideEvent: new SlideEvent(),
+      Slide: null,
+      SlideEvent: null,
       Cameras: []
     })
   ],
