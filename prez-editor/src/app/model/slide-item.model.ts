@@ -34,10 +34,14 @@ export class SlideEvent {
 }
 
 export class SlideItem {
-    private previous: SlideItem;
-    private next: SlideItem;
     private slide: Slide;
     private mesh: THREE.Mesh;
+
+    /**
+     * for navigation
+     */
+    private previous: SlideItem;
+    private next: SlideItem;
 
     constructor(slide: Slide, mesh: THREE.Mesh) {
         this.slide = slide;
@@ -56,20 +60,32 @@ export class SlideItem {
         return this.mesh.uuid;
     }
 
+    public isEmpty(): boolean {
+        return !((this.mesh) && (this.slide));
+    }
+
+    /**
+     * create linked slide
+     * @param _previous
+     * @param _next 
+     */
     public setLinked(_previous: SlideItem, _next: SlideItem) {
         this.previous = _previous;
         this.next = _next;
     }
 
-    public getPrevious() {
+    /**
+     * get previous
+     */
+    public getPrevious(): SlideItem {
         return this.previous;
     }
 
-    public getNext() {
+    /**
+     * get next
+     */
+    public getNext(): SlideItem {
         return this.next;
     }
 
-    public isEmpty(): boolean {
-        return !((this.mesh) && (this.slide));
-    }
 }

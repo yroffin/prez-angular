@@ -20,11 +20,13 @@ import * as _ from 'lodash';
 import { Slide } from '../model/slide.model';
 import { SlideItem, SlideEvent } from '../model/slide-item.model';
 
-export const addSlides = 'addSlides';
 export const addOrUpdateSlide = 'addOrUpdateSlide';
 export const selectSlide = 'selectSlide';
 
 export const selectSlideItemEvent = 'selectSlideItemEvent';
+export const selectNextSlideItemEvent = 'selectNextSlideItemEvent';
+export const selectPrevSlideItemEvent = 'selectPrevSlideItemEvent';
+
 export const focusSlide = 'focusSlide';
 export const updateSlidePosX = 'updateSlidePosX';
 export const updateSlidePosY = 'updateSlidePosY';
@@ -46,14 +48,38 @@ export interface SlideItemAppState {
 export class SlidesStore {
 
     /**
+     * build previous and next
+     * @param newState 
+     */
+    public static reduce(newState: Array<Slide>) {
+        // handle first element
+        if (newState.length == 1) {
+            newState[0].setLinked(newState[0], newState[0]);
+        }
+        if (newState.length > 1) {
+            newState[0].setLinked(newState[newState.length - 1], newState[1]);
+        }
+        // build next and previous value
+        newState.reduce((previousValue, currentValue, currentIndex, array) => {
+            let prev = array[array.length - 1];
+            let next = null;
+            if (currentIndex == (array.length - 1)) {
+                next = array[0];
+            } else {
+                next = array[currentIndex + 1];
+            }
+            currentValue.setLinked(prev, next);
+            return currentValue;
+        });
+    }
+
+    /**
      * slides reducer
      * @param state 
      * @param action 
      */
     public static slidesReducer(state: Array<Slide> = [], action: Action): Array<Slide> {
         switch (action.type) {
-            case addSlides:
-                return Object.assign(new Array<Slide>(), state, <Array<Slide>>action.payload);
             /**
              * add or update a slide
              */
@@ -69,12 +95,17 @@ export class SlidesStore {
                      * then create it or update it
                      */
                     if (index === -1) {
-                        return [...state, <Slide>action.payload];
+                        let newState = [...state, <Slide>action.payload];
+                        SlidesStore.reduce(newState);
+                        return newState;
                     } else {
-                        return state.map((slide) => {
+                        // compute new state
+                        let newState = state.map((slide) => {
                             let target: Slide = <Slide>action.payload;
                             return slide.getId() === (<Slide>action.payload).getId() ? Object.assign(Slide.factory(), slide, target) : slide;
                         });
+                        SlidesStore.reduce(newState);
+                        return newState;
                     }
                 }
 
@@ -100,6 +131,12 @@ export class SlidesStore {
                 let slideEvent = <SlideEvent>action.payload;
                 let target = <SlideItem>(<SlideEvent>action.payload).getSlideItem();
                 return Object.assign(new SlideItem(null, null), state, <SlideItem>(<SlideEvent>action.payload).getSlideItem());
+
+            case selectNextSlideItemEvent:
+                return Object.assign(new SlideItem(null, null), state.getNext());
+
+            case selectPrevSlideItemEvent:
+                return Object.assign(new SlideItem(null, null), state.getPrevious());
 
             case updateSlidePosX:
                 /**

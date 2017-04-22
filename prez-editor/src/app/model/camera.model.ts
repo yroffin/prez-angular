@@ -16,16 +16,31 @@
 
 export class Camera {
     private position: THREE.Vector3;
+    private lookAtPosition: THREE.Vector3;
     private name: string;
     
-    constructor(name: string, position: THREE.Vector3) {
+    constructor(name: string, position: THREE.Vector3, lookAtPosition: THREE.Vector3) {
         this.name = name;
         this.position = position;
+        this.lookAtPosition = lookAtPosition;
+    }
+
+    public setPosition(pos: THREE.Vector3) {
+        this.position = pos;
+    }
+
+    public setLookAtPosition(pos: THREE.Vector3) {
+        this.lookAtPosition = pos;
     }
 
     public getPosition(): THREE.Vector3 {
         return this.position;
     }
+
+    public getLookAtPosition(): THREE.Vector3 {
+        return this.lookAtPosition;
+    }
+
     public getName(): string {
         return this.name;
     }

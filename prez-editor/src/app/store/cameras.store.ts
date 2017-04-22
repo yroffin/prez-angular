@@ -21,8 +21,13 @@ import { Camera } from '../model/camera.model';
 export const resetCameras = 'resetCameras';
 export const addOrUpdateCamera = 'addOrUpdateCamera';
 
+export const selectCamera = 'selectCamera';
+export const updateCameraPosition = 'updateCameraPosition';
+export const updateCameraLookAtPosition = 'updateCameraLookAtPosition';
+
 export interface CamerasAppState {
-  slides: Array<Camera>;
+    cameras: Array<Camera>;
+    camera: Camera;
 }
 
 export class CamerasStore {
@@ -30,10 +35,47 @@ export class CamerasStore {
     public static camerasReducer(state: Array<Camera> = [], action: Action): Array<Camera> {
         switch (action.type) {
             case resetCameras:
-                return Object.assign(new Array<Camera>(), state, <Array<Camera>> action.payload);
+                return Object.assign(new Array<Camera>(), state, <Array<Camera>>action.payload);
 
             case addOrUpdateCamera:
-                state.push(<Camera> action.payload);
+                state.push(<Camera>action.payload);
+                return state;
+
+            default:
+                return state;
+        }
+    }
+
+    /**
+     * single camera reducer (the current camera on with we apply current focus)
+     * @param state
+     * @param action 
+     */
+    public static cameraReducer(state: Camera, action: Action): Camera {
+        switch (action.type) {
+            /**
+             * assign current camera on witch we want to apply
+             * focus
+             */
+            case selectCamera:
+                {
+                    let cam = <Camera>action.payload;
+                    state = new Camera(cam.getName(), cam.getPosition(), cam.getLookAtPosition());
+                }
+                return state
+
+            case updateCameraPosition:
+                {
+                    let pos = <THREE.Vector3>action.payload
+                    state = new Camera(state.getName(), pos, state.getLookAtPosition());
+                }
+                return state;
+
+            case updateCameraLookAtPosition:
+                {
+                    let look = <THREE.Vector3>action.payload
+                    state = new Camera(state.getName(), state.getPosition(), look);
+                }
                 return state;
 
             default:

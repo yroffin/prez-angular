@@ -18,11 +18,14 @@ import { Component, OnInit, AfterViewInit, ViewChild, ViewChildren, QueryList } 
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 import { Spinner } from 'primeng/primeng';
-
 import * as THREE from 'three';
+
+import { LoggerService } from '../../service/logger.service';
 
 import {
   SlideItemAppState,
+  selectNextSlideItemEvent,
+  selectPrevSlideItemEvent,
   updateSlidePosX,
   updateSlidePosY,
   updateSlidePosZ,
@@ -77,7 +80,8 @@ export class Prez3dElementMeshComponent implements OnInit, AfterViewInit {
    * @param store
    */
   constructor(
-    private store: Store<SlideItemAppState>
+    private store: Store<SlideItemAppState>,
+    private _logger: LoggerService
   ) {
 
   }
@@ -179,6 +183,9 @@ export class Prez3dElementMeshComponent implements OnInit, AfterViewInit {
    * @param slide
    */
   private next(item: SlideItem) {
+    this.store.dispatch({
+      type: selectNextSlideItemEvent
+    });
   }
 
   /**
@@ -186,5 +193,8 @@ export class Prez3dElementMeshComponent implements OnInit, AfterViewInit {
    * @param slide
    */
   private previous(item: SlideItem) {
+    this.store.dispatch({
+      type: selectPrevSlideItemEvent
+    });
   }
 }

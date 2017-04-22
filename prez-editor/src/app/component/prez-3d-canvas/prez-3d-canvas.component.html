@@ -1,9 +1,14 @@
-<p-panel header="Slides" [toggleable]="true">
+<p-panel header="Slide {{title}}" [toggleable]="true">
   <div class="ui-g">
-    <div class="ui-g-6">
+    <div class="ui-g-12">
       <app-prez-3d-scene></app-prez-3d-scene>
     </div>
-    <div class="ui-g-6">
+  </div>
+</p-panel>
+
+<p-panel header="Slides" [toggleable]="true" [collapsed]="true">
+  <div class="ui-g">
+    <div class="ui-g-12">
       <p-tabView>
         <p-tabPanel header="Scene">
           <p-tree [value]="scene.elements" selectionMode="single" [(selection)]="selectedFile" (onNodeSelect)="nodeSelect($event)"
@@ -22,6 +27,8 @@
               <td>{{scene.mouse && scene.mouse.y}}</td>
             </tr>
           </table>
+        </p-tabPanel>
+        <p-tabPanel header="Current">
         </p-tabPanel>
       </p-tabView>
     </div>

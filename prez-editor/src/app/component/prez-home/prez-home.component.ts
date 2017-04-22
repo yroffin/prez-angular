@@ -27,5 +27,4 @@ export class PrezHomeComponent implements OnInit {
 
   ngOnInit() {
   }
-
 }

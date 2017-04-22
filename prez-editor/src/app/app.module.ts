@@ -136,12 +136,14 @@ const appRoutes: Routes = [
       Slides: SlidesStore.slidesReducer,
       Slide: SlidesStore.slideReducer,
       SlideEvent: SlidesStore.slideEventReducer,
-      Cameras: CamerasStore.camerasReducer
+      Cameras: CamerasStore.camerasReducer,
+      Camera: CamerasStore.cameraReducer
     }, {
       Slides: [],
       Slide: null,
       SlideEvent: null,
-      Cameras: []
+      Cameras: [],
+      Camera: []
     })
   ],
   providers: [

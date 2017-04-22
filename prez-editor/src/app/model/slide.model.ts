@@ -23,6 +23,13 @@ export class Slide {
     private name: string;
     private url: string;
     private focused: boolean;
+
+    /**
+     * for navigation
+     */
+    private previous: Slide;
+    private next: Slide;
+
     
     /**
      * constructor
@@ -38,6 +45,30 @@ export class Slide {
         this.url = url;
         this.position = position;
         this.rotation = rotation;
+    }
+
+    /**
+     * create linked slide
+     * @param _previous
+     * @param _next 
+     */
+    public setLinked(_previous: Slide, _next: Slide) {
+        this.previous = _previous;
+        this.next = _next;
+    }
+
+    /**
+     * get previous
+     */
+    public getPrevious() {
+        return this.previous;
+    }
+
+    /**
+     * get next
+     */
+    public getNext() {
+        return this.next;
     }
 
     public static factory(): Slide {
