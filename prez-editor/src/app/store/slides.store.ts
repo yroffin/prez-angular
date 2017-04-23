@@ -198,28 +198,6 @@ export class SlidesStore {
      */
     public static slideEventReducer(state: SlideEvent, action: Action): SlideEvent {
         switch (action.type) {
-
-            case selectSlideItemEvent:
-                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
-
-            case updateSlidePosX:
-                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
-
-            case updateSlidePosY:
-                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
-
-            case updateSlidePosZ:
-                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
-
-            case updateSlideRotX:
-                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
-
-            case updateSlideRotY:
-                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
-
-            case updateSlideRotZ:
-                return Object.assign(new SlideEvent(), state, <SlideEvent>action.payload);
-
             default:
                 return state;
         }

@@ -41,7 +41,7 @@ import { Slide } from '../../model/slide.model';
   templateUrl: './prez-3d-element-mesh.component.html',
   styleUrls: ['./prez-3d-element-mesh.component.css']
 })
-export class Prez3dElementMeshComponent implements OnInit, AfterViewInit {
+export class Prez3dElementMeshComponent implements AfterViewInit {
 
   /**
    * spinner children
@@ -73,7 +73,9 @@ export class Prez3dElementMeshComponent implements OnInit, AfterViewInit {
    * internal threejs members
    */
   public target: SlideItem;
-  public slide: Slide;
+  public visible = false;
+
+  private slideObservable: Observable<SlideItem> = new Observable<SlideItem>();
 
   /**
    * constructor
@@ -83,27 +85,27 @@ export class Prez3dElementMeshComponent implements OnInit, AfterViewInit {
     private store: Store<SlideItemAppState>,
     private _logger: LoggerService
   ) {
-
+    this.slideObservable = this.store.select<SlideItem>('Slide');
+    // register to slide selection
+    this.slideObservable
+      .filter(item => {
+        if (item) {
+          return true
+        } else {
+          return false
+        }
+      })
+      .subscribe((item) => {
+        console.info("slideEventStore")
+        this.target = item;
+      }
+      );
   }
 
   /**
    * component init
    */
-  ngOnInit() {
-    /**
-     * store init
-     */
-    let slideEventStore = this.store.select<SlideEvent>('SlideEvent');
-
-    /**
-     * register to slide event
-     */
-    slideEventStore.subscribe((item) => {
-      if (item && item.getSlideItem()) {
-        this.target = item.getSlideItem();
-        this.slide = item.getSlideItem().getSlide();
-      }
-    });
+  ngInit() {
   }
 
   /**

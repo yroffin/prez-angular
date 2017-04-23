@@ -1,4 +1,4 @@
-<p-panel header="Slide {{title}}" [toggleable]="true">
+<p-panel header="Slide {{target && target.getSlide().getName()}}" [toggleable]="true">
   <div class="ui-g">
     <div class="ui-g-12">
       <app-prez-3d-scene></app-prez-3d-scene>

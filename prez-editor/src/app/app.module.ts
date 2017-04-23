@@ -59,6 +59,7 @@ import { Prez3dSceneComponent } from './component/prez-3d-scene/prez-3d-scene.co
 
 import { LoggerService } from './service/logger.service';
 import { TweenFactoryService } from './service/tween-factory.service';
+import { CanvasDataService } from './service/canvas-data.service';
 import { Prez3dElementCameraComponent } from './component/prez-3d-element-camera/prez-3d-element-camera.component';
 import { Prez3dElementMeshComponent } from './component/prez-3d-element-mesh/prez-3d-element-mesh.component';
 
@@ -66,7 +67,7 @@ import { StoreModule } from '@ngrx/store';
 import { SlidesStore } from './store/slides.store';
 import { CamerasStore } from './store/cameras.store';
 import { Slide } from './model/slide.model';
-import { SlideItem, SlideEvent } from './model/slide-item.model';
+import { SlideEvent } from './model/slide-item.model';
 
 /**
  * default route definition
@@ -149,6 +150,7 @@ const appRoutes: Routes = [
   providers: [
     LoggerService,
     TweenFactoryService,
+    CanvasDataService
     ],
   bootstrap: [AppComponent]
 })

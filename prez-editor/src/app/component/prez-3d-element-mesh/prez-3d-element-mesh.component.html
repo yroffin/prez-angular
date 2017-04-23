@@ -1,27 +1,27 @@
-<div *ngIf="target && slide">
+<div *ngIf="target">
   <table>
     <tr>
       <td>id</td>
-      <td><input type="text" pInputText [(ngModel)]="slide.id" disabled /></td>
+      <td><input type="text" pInputText [(ngModel)]="target.slide.id" disabled /></td>
     </tr>
     <tr>
       <td>uuid</td>
-      <td><input size="38" type="text" pInputText [(ngModel)]="target.mesh.uuid" /></td>
+      <td><input size="38" type="text" pInputText [(ngModel)]="target.getMesh().uuid" /></td>
     </tr>
     <tr>
       <td>position</td>
       <td>
-        <p-spinner #spinnerPosX size="6" [(ngModel)]="slide.position.x"></p-spinner>
-        <p-spinner #spinnerPosY size="6" [(ngModel)]="slide.position.y"></p-spinner>
-        <p-spinner #spinnerPosZ size="6" [(ngModel)]="slide.position.z"></p-spinner>
+        <p-spinner #spinnerPosX size="6" [(ngModel)]="target.getSlide().position.x"></p-spinner>
+        <p-spinner #spinnerPosY size="6" [(ngModel)]="target.getSlide().position.y"></p-spinner>
+        <p-spinner #spinnerPosZ size="6" [(ngModel)]="target.getSlide().position.z"></p-spinner>
       </td>
     </tr>
     <tr>
       <td>rotation</td>
       <td>
-        <p-spinner #spinnerRotX size="6" [(ngModel)]="slide.rotation.x"></p-spinner>
-        <p-spinner #spinnerRotY size="6" [(ngModel)]="slide.rotation.y"></p-spinner>
-        <p-spinner #spinnerRotZ size="6" [(ngModel)]="slide.rotation.z"></p-spinner>
+        <p-spinner #spinnerRotX size="6" [(ngModel)]="target.getSlide().rotation.x"></p-spinner>
+        <p-spinner #spinnerRotY size="6" [(ngModel)]="target.getSlide().rotation.y"></p-spinner>
+        <p-spinner #spinnerRotZ size="6" [(ngModel)]="target.getSlide().rotation.z"></p-spinner>
       </td>
     </tr>
   </table>

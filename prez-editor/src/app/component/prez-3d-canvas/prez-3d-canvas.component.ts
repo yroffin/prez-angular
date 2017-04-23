@@ -55,12 +55,14 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
   @ViewChild(Prez3dElementCameraComponent) camera: Prez3dElementCameraComponent
   @ViewChild(Prez3dElementMeshComponent) mesh: Prez3dElementMeshComponent
 
+  /**
+   * internal members
+   */
   private msgs: Message[];
   private slide: Observable<SlideItem> = new Observable<SlideItem>();
 
   // current target pieces (first piece at the begining)
   private target: SlideItem;
-  private title: string;
 
   /**
    * constructor
@@ -93,7 +95,6 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
       })
       .subscribe((item) => {
         this.target = item;
-        this.title = this.target.getSlide().getName();
       });
   }
 
