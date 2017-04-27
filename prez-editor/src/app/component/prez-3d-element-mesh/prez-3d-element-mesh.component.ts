@@ -96,10 +96,19 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
         }
       })
       .subscribe((item) => {
-        console.info("slideEventStore")
-        this.target = item;
-      }
-      );
+        this.onSlideSelection(item);
+      });
+  }
+
+  /**
+   * dispatch slide loading
+   * @param name dispatch slide loading
+   * @param url 
+   * @param position 
+   */
+  private onSlideSelection(slide: SlideItem): void {
+    this._logger.debug('Prez3dElementMeshComponent::onSlideSelection', slide);
+    this.target = slide;
   }
 
   /**

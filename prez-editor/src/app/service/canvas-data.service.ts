@@ -114,38 +114,4 @@ export class CanvasDataService {
       return currentValue;
     });
   }
-
-  /**
-   * get slide by id
-   * @param id 
-   */
-  public getSlideById(id: string): SLIDE.Slide {
-    if (this.slides.has(id)) {
-      return this.slides.get(id);
-    }
-    return null;
-  }
-
-  /**
-   * add or update slide
-   * @param id 
-   * @param name 
-   * @param url 
-   * @param position 
-   * @param rotation 
-   */
-  public addOrUpdateSlide(id: string, name: string, url: string, position: THREE.Vector3, rotation: THREE.Vector3): SLIDE.Slide {
-    if (!this.slides.has(name)) {
-      this.slides.set(id, new SLIDE.Slide(id, name, url, position, rotation));
-    } else {
-      let slide = this.slides.get(id)
-      slide.setPosX(position.x)
-      slide.setPosY(position.y)
-      slide.setPosZ(position.z)
-      slide.setRotX(rotation.x);
-      slide.setRotY(rotation.y);
-      slide.setRotZ(rotation.z);
-    }
-    return this.slides.get(id);
-  }
 }

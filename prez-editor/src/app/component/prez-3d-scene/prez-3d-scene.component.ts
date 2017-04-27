@@ -113,54 +113,25 @@ export class Prez3dSceneComponent implements OnInit {
     this.cameraObservable = this.store.select<Camera>('Camera');
   }
 
-  @HostListener('mousemove', ['$event'])
-  private handleMousemove(event) {
-    this.capture(event);
-    this.render();
-  }
-
-  @HostListener('wheel', ['$event'])
-  private handleWheel(event) {
-    this.render();
+  /**
+   * get elements
+   */
+  public getElements(): TreeNode[] {
+    return this.elements;
   }
 
   /**
-   * handle dblclick event
-   * @param event 
+   * get elements
    */
-  @HostListener('dblclick', ['$event'])
-  private handleDblclick(event) {
-    this._logger.info("dblclick", event);
-    if (this.selected) {
-      /**
-       * send selection event
-       */
-      this.store.dispatch({
-        type: selectSlideItemEvent,
-        payload: new SlideEvent().setSlideItem(this.selected)
-      });
-    }
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  private handleKeydown(event) {
-    console.info(event);
-    if (event.key === "z") {
-      this.reset(-10);
-      return;
-    }
-    if (event.key === "s") {
-      this.reset(10);
-      return;
-    }
-    if (event.code === "ArrowRight") {
-      this.next(event);
-      return;
-    }
-    if (event.code === "ArrowLeft") {
-      this.previous(event);
-      return;
-    }
+  public select(slide: Slide): TreeNode {
+    console.debug('select', slide);
+    let selection: TreeNode;
+    _.each(this.nodesMesh, (node) => {
+      if ((<SlideItem>node.data).getSlide().getId() === slide.getId()) {
+        selection = node;
+      }
+    });
+    return selection;
   }
 
   /**
@@ -392,5 +363,65 @@ export class Prez3dSceneComponent implements OnInit {
    */
   public render() {
     this.scene.render();
+  }
+
+  /**
+   * mouse move event
+   * @param event 
+   */
+  @HostListener('mousemove', ['$event'])
+  private handleMousemove(event) {
+    this.capture(event);
+    this.render();
+  }
+
+  /**
+   * wheel
+   * @param event 
+   */
+  @HostListener('wheel', ['$event'])
+  private handleWheel(event) {
+    this.render();
+  }
+
+  /**
+   * handle dblclick event
+   * @param event 
+   */
+  @HostListener('dblclick', ['$event'])
+  private handleDblclick(event) {
+    if (this.selected) {
+      /**
+       * send selection event
+       */
+      this.store.dispatch({
+        type: selectSlideItemEvent,
+        payload: new SlideEvent().setSlideItem(this.selected)
+      });
+    }
+  }
+
+  /**
+   * handle keydown
+   * @param event 
+   */
+  @HostListener('window:keydown', ['$event'])
+  private handleKeydown(event) {
+    if (event.key === "z") {
+      this.reset(-10);
+      return;
+    }
+    if (event.key === "s") {
+      this.reset(10);
+      return;
+    }
+    if (event.code === "ArrowRight") {
+      this.next(event);
+      return;
+    }
+    if (event.code === "ArrowLeft") {
+      this.previous(event);
+      return;
+    }
   }
 }

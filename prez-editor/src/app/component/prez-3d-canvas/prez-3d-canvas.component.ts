@@ -27,7 +27,7 @@ import { OrbitControls } from 'three-orbitcontrols-ts';
 import * as TWEEN from 'tween.js';
 import * as _ from 'lodash';
 
-import { Message, TreeNode, TreeTable } from 'primeng/primeng';
+import { Message, Tree, TreeNode, TreeTable } from 'primeng/primeng';
 
 import { Render } from '../../interface/render.interface';
 
@@ -37,7 +37,7 @@ import { Prez3dElementMeshComponent } from '../prez-3d-element-mesh/prez-3d-elem
 import { LoggerService } from '../../service/logger.service';
 import { TweenFactoryService } from '../../service/tween-factory.service';
 
-import { addOrUpdateSlide, SlidesAppState, selectSlideItemEvent } from '../../store/slides.store';
+import * as SLIDES_EVENT from '../../store/slides.store';
 import * as CAMERAS from '../../store/cameras.store';
 
 import { Slide } from '../../model/slide.model';
@@ -51,6 +51,10 @@ import { SlideItem, SlideEvent } from '../../model/slide-item.model';
 })
 export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
 
+  /**
+   * link to html template
+   */
+  @ViewChild(Tree) tree: Tree
   @ViewChild(Prez3dSceneComponent) scene: Prez3dSceneComponent
   @ViewChild(Prez3dElementCameraComponent) camera: Prez3dElementCameraComponent
   @ViewChild(Prez3dElementMeshComponent) mesh: Prez3dElementMeshComponent
@@ -59,7 +63,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
    * internal members
    */
   private msgs: Message[];
-  private slide: Observable<SlideItem> = new Observable<SlideItem>();
+  private slideObservable: Observable<SlideItem> = new Observable<SlideItem>();
 
   // current target pieces (first piece at the begining)
   private target: SlideItem;
@@ -70,12 +74,12 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
    * @param _renderer local renderer
    */
   constructor(
-    private store: Store<SlidesAppState>
+    private store: Store<SLIDES_EVENT.SlidesAppState>
   ) {
     /**
      * register to store Slides
      */
-    this.slide = this.store.select<SlideItem>('Slide');
+    this.slideObservable = this.store.select<SlideItem>('Slide');
 
     /**
      * load data
@@ -85,7 +89,7 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
     /**
      * register to slide selection, filter on null values
      */
-    this.slide
+    this.slideObservable
       .filter(item => {
         if (item) {
           return true
@@ -94,19 +98,32 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
         }
       })
       .subscribe((item) => {
-        this.target = item;
+        this.onSlideSelection(item);
       });
   }
 
   /**
-   * 
+   * dispatch slide loading
+   * @param name dispatch slide loading
+   * @param url 
+   * @param position 
+   */
+  private onSlideSelection(slide: SlideItem): void {
+    console.debug('slide', slide);
+    this.target = slide;
+    console.debug('slide', slide.getSlide());
+    this.tree.selection = this.scene.select(slide.getSlide());
+  }
+
+  /**
+   * dispatch slide loading
    * @param name dispatch slide loading
    * @param url 
    * @param position 
    */
   private dispatchSlideLoading(id: string, name: string, url: string, position: THREE.Vector3, rotation: THREE.Vector3) {
     this.store.dispatch({
-      type: addOrUpdateSlide,
+      type: SLIDES_EVENT.addOrUpdateSlide,
       payload: new Slide(id, name, url, position, rotation)
     });
   }
@@ -221,14 +238,6 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * load a sample data
-   */
-  public add() {
-    this.dispatchSlideLoading("#9", "Slide 001", '/assets/svg/00071.svg', new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
-    this.dispatchCameraReset("Default", new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
-  }
-
-  /**
    * init component
    */
   ngOnInit() {
@@ -242,23 +251,24 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * 
+   * select node event handler
    * @param event select node event
    */
   nodeSelect(event) {
     if (event.node.data && event.node.data.constructor) {
       this.msgs = [];
       this.msgs.push({ severity: 'info', summary: 'Node Selected', detail: event.node.data.constructor.name });
-      this.camera.target = null;
-      this.mesh.target = null;
       if (event.node.data.constructor.name === "PerspectiveCamera") {
+        /**
+         * todo handle camera selection
+         */
       } else {
         if (event.node.data.mesh && event.node.data.mesh.constructor && event.node.data.mesh.constructor.name === "Mesh") {
           /**
-           * send selection event
+           * send selection event on this slide
            */
           this.store.dispatch({
-            type: selectSlideItemEvent,
+            type: SLIDES_EVENT.selectSlideItemEvent,
             payload: new SlideEvent().setSlideItem(<SlideItem>event.node.data)
           });
         }
@@ -266,6 +276,10 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * unselect handler
+   * @param event
+   */
   nodeUnselect(event) {
     this.msgs = [];
     this.msgs.push({ severity: 'info', summary: 'Node Unselected', detail: event.node.label });
