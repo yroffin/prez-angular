@@ -273,7 +273,7 @@ export class Prez3dSceneComponent implements OnInit {
         }
       })
       .subscribe((item) => {
-        if(item["name"]) {
+        if (item["name"]) {
           this.scene.setCameraPosition(item.getPosition().x, item.getPosition().y, item.getPosition().z);
           this.scene.setCameraLookAtPosition(item.getLookAtPosition());
           this.render();
@@ -300,9 +300,10 @@ export class Prez3dSceneComponent implements OnInit {
       targetMesh.position.x = targetSlide.getPosition().x;
       targetMesh.position.y = targetSlide.getPosition().y;
       targetMesh.position.z = targetSlide.getPosition().z;
-      targetMesh.rotateX(targetSlide.getRotation().x * Math.PI / 180);
-      targetMesh.rotateY(targetSlide.getRotation().y * Math.PI / 180);
-      targetMesh.rotateZ(targetSlide.getRotation().z * Math.PI / 180);
+
+      targetMesh.rotation.x = THREE.Math.degToRad( targetSlide.getRotation().x );
+      targetMesh.rotation.y = THREE.Math.degToRad( targetSlide.getRotation().y );
+      targetMesh.rotation.z = THREE.Math.degToRad( targetSlide.getRotation().z );
       this.render();
     } else {
       let currentMesh = this._canvas.findMeshById("threejs", this.target.getMeshId());
