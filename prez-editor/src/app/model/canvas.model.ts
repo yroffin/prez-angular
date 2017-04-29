@@ -74,6 +74,14 @@ export class Scene {
     }
 
     /**
+     * find any mesh by its id
+     * @param objectId 
+     */
+    public findMeshById(objectId: number): THREE.Mesh {
+        return <THREE.Mesh> this.scene.getObjectById(objectId);
+    }
+
+    /**
      * add a new standard mesh
      * @param name 
      * @param x 

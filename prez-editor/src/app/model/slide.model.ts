@@ -23,6 +23,7 @@ export class Slide {
     private name: string;
     private url: string;
     private focused: boolean;
+    private meshId: number;
 
     /**
      * for navigation
@@ -55,6 +56,21 @@ export class Slide {
     public setLinked(_previous: Slide, _next: Slide) {
         this.previous = _previous;
         this.next = _next;
+    }
+
+    /**
+     * fix mesh id
+     * @param meshId 
+     */
+    public setMeshId(meshId: number) {
+        this.meshId = meshId;
+    }
+
+    /**
+     * get mesh id
+     */
+    public getMeshId() {
+        return this.meshId;
     }
 
     /**

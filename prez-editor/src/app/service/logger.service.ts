@@ -29,4 +29,8 @@ export class LoggerService {
   public info(message, ...args) {
     console.info(message, args);
   }
+
+  public error(message, ...args) {
+    console.error(message, args);
+  }
 }

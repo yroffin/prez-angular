@@ -15,15 +15,15 @@
  */
 
 import { Component, OnInit, AfterViewInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { State, Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 import { Spinner } from 'primeng/primeng';
 import * as THREE from 'three';
 
 import { LoggerService } from '../../service/logger.service';
+import { CanvasDataService } from '../../service/canvas-data.service';
 
 import {
-  SlideItemAppState,
   selectNextSlideItemEvent,
   selectPrevSlideItemEvent,
   updateSlidePosX,
@@ -33,8 +33,8 @@ import {
   updateSlideRotY,
   updateSlideRotZ
 } from '../../store/slides.store';
-import { SlideItem, SlideEvent } from '../../model/slide-item.model';
-import { Slide } from '../../model/slide.model';
+
+import * as SLIDE from '../../model/slide.model';
 
 @Component({
   selector: 'app-prez-3d-element-mesh',
@@ -72,20 +72,23 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
   /**
    * internal threejs members
    */
-  public target: SlideItem;
+  public targetSlide: SLIDE.Slide;
+  public targetMesh: THREE.Mesh;
+
   public visible = false;
 
-  private slideObservable: Observable<SlideItem> = new Observable<SlideItem>();
+  private slideObservable: Observable<SLIDE.Slide> = new Observable<SLIDE.Slide>();
 
   /**
    * constructor
    * @param store
    */
   constructor(
-    private store: Store<SlideItemAppState>,
+    private _store: Store<State<any>>,
+    private _canvas: CanvasDataService,
     private _logger: LoggerService
   ) {
-    this.slideObservable = this.store.select<SlideItem>('Slide');
+    this.slideObservable = this._store.select<SLIDE.Slide>('Slide');
     // register to slide selection
     this.slideObservable
       .filter(item => {
@@ -106,9 +109,10 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
    * @param url 
    * @param position 
    */
-  private onSlideSelection(slide: SlideItem): void {
+  private onSlideSelection(slide: SLIDE.Slide): void {
     this._logger.debug('Prez3dElementMeshComponent::onSlideSelection', slide);
-    this.target = slide;
+    this.targetSlide = slide;
+    this.targetMesh = this._canvas.findMeshById("threejs", slide.getMeshId());
   }
 
   /**
@@ -125,7 +129,7 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
       if (comps.first) {
         this.spinPosX = comps.first;
         this.spinPosX.registerOnChange((event) => {
-          this.store.dispatch({
+          this._store.dispatch({
             type: updateSlidePosX,
             payload: this.spinPosX.value
           });
@@ -136,7 +140,7 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
       if (comps.first) {
         this.spinPosY = comps.first;
         this.spinPosY.registerOnChange((event) => {
-          this.store.dispatch({
+          this._store.dispatch({
             type: updateSlidePosY,
             payload: this.spinPosY.value
           });
@@ -147,7 +151,7 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
       if (comps.first) {
         this.spinPosZ = comps.first;
         this.spinPosZ.registerOnChange((event) => {
-          this.store.dispatch({
+          this._store.dispatch({
             type: updateSlidePosZ,
             payload: this.spinPosZ.value
           });
@@ -158,7 +162,7 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
       if (comps.first) {
         this.spinRotX = comps.first;
         this.spinRotX.registerOnChange((event) => {
-          this.store.dispatch({
+          this._store.dispatch({
             type: updateSlideRotX,
             payload: this.spinRotX.value
           });
@@ -169,7 +173,7 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
       if (comps.first) {
         this.spinRotY = comps.first;
         this.spinRotY.registerOnChange((event) => {
-          this.store.dispatch({
+          this._store.dispatch({
             type: updateSlideRotY,
             payload: this.spinRotY.value
           });
@@ -180,7 +184,7 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
       if (comps.first) {
         this.spinRotZ = comps.first;
         this.spinRotZ.registerOnChange((event) => {
-          this.store.dispatch({
+          this._store.dispatch({
             type: updateSlideRotZ,
             payload: this.spinRotZ.value
           });
@@ -193,8 +197,8 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
    * next slide
    * @param slide
    */
-  private next(item: SlideItem) {
-    this.store.dispatch({
+  private next() {
+    this._store.dispatch({
       type: selectNextSlideItemEvent
     });
   }
@@ -203,8 +207,8 @@ export class Prez3dElementMeshComponent implements AfterViewInit {
    * previous slide
    * @param slide
    */
-  private previous(item: SlideItem) {
-    this.store.dispatch({
+  private previous() {
+    this._store.dispatch({
       type: selectPrevSlideItemEvent
     });
   }

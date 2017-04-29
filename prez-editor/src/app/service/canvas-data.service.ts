@@ -17,8 +17,10 @@
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
 import * as CANVAS from '../model/canvas.model'
-import * as ITEM from '../model/slide-item.model'
 import * as SLIDE from '../model/slide.model'
+import * as THREE from 'three';
+
+import { LoggerService } from '../service/logger.service';
 
 @Injectable()
 export class CanvasDataService {
@@ -27,12 +29,13 @@ export class CanvasDataService {
    * internal members
    */
   private scenes = new Map<string, CANVAS.Scene>();
-  private slideItems = new Map<string, Array<ITEM.SlideItem>>();
 
   /**
    * constructor
    */
-  constructor() {
+  constructor(
+    private _logger: LoggerService,
+  ) {
   }
 
   /**
@@ -47,71 +50,28 @@ export class CanvasDataService {
   }
 
   /**
-   * find slide by id
+   * reteirve items
    * @param name
+   */
+  public findMeshById(name: string, meshId: number): THREE.Mesh {
+    let scene = this.scenes.get(name);
+    if(scene === null) {
+      this._logger.error("findMeshById scene is null for", name);
+    }
+    let mesh: THREE.Mesh = scene.findMeshById(meshId);
+    return mesh;
+  }
+
+  /**
+   * associate a slide to a mesh (created)
+   * @param name 
    * @param slide 
    */
-  public findSlideById(name: string, slide: SLIDE.Slide): number {
-    if (!this.slideItems.has(name)) {
-      this.slideItems.set(name, new Array<ITEM.SlideItem>());
-    }
-    let slideItems = this.slideItems.get(name);
-    // assert this slide is not associate with a mesh
-    let index = _.findIndex(slideItems, (slideItem) => {
-      return slideItem.getSlide().getId() == slide.getId();
-    });
-    return index;
-  }
-
-  /**
-   * associate a slide to a mesh
-   * @param name
-   * @param slide
-   * @param mesh
-   */
-  public registerSlide(name: string, slide: SLIDE.Slide): ITEM.SlideItem {
-    // assert this slide is not associate with a mesh
-    let index = this.findSlideById(name, slide);
-    if (index === -1) {
-      let slideItems = this.slideItems.get(name);
-      // slide is not registered
-      let mesh = this.getScene(name).add(slide.getName(), slide.getPosition().x, slide.getPosition().y, slide.getPosition().z, slide.getUrl());
-      let link = new ITEM.SlideItem(slide, mesh);
-      slideItems.push(link);
-      // compute next and previous
-      this.reduce(slideItems);
-      return link;
-    }
-    // return this slide item
-    return this.slideItems.get(name)[index];
-  }
-
-  /**
-   * build previous and next
-   * @param newState 
-   */
-  private reduce(newState: Array<ITEM.SlideItem>): void {
-    // handle first element
-    if (newState.length == 1) {
-      newState[0].setLinked(newState[0], newState[0]);
-    }
-    if (newState.length > 1) {
-      newState[0].setLinked(newState[newState.length - 1], newState[1]);
-    }
-    // build next and previous value
-    newState.reduce((previousValue, currentValue, currentIndex, array) => {
-      let prev = currentIndex - 1;
-      if (prev < 0) {
-        prev = array.length - 1;
-      }
-      let next = null;
-      if (currentIndex == (array.length - 1)) {
-        next = array[0];
-      } else {
-        next = array[currentIndex + 1];
-      }
-      currentValue.setLinked(array[prev], next);
-      return currentValue;
-    });
+  public createMeshFromSlide(name: string, slide: SLIDE.Slide): THREE.Mesh {
+    /**
+     * create a new mesh with slide data
+     */
+    let mesh = this.getScene(name).add(slide.getName(), slide.getPosition().x, slide.getPosition().y, slide.getPosition().z, slide.getUrl());
+    return mesh;
   }
 }

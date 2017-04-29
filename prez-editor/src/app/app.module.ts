@@ -67,7 +67,7 @@ import { StoreModule } from '@ngrx/store';
 import { SlidesStore } from './store/slides.store';
 import { CamerasStore } from './store/cameras.store';
 import { Slide } from './model/slide.model';
-import { SlideEvent } from './model/slide-item.model';
+import { Prez3dTreeComponent } from './component/prez-3d-tree/prez-3d-tree.component';
 
 /**
  * default route definition
@@ -85,7 +85,8 @@ const appRoutes: Routes = [
     Prez3dCanvasComponent,
     Prez3dSceneComponent,
     Prez3dElementCameraComponent,
-    Prez3dElementMeshComponent
+    Prez3dElementMeshComponent,
+    Prez3dTreeComponent
   ],
   imports: [
     BrowserModule,
@@ -136,13 +137,11 @@ const appRoutes: Routes = [
     StoreModule.provideStore({
       Slides: SlidesStore.slidesReducer,
       Slide: SlidesStore.slideReducer,
-      SlideEvent: SlidesStore.slideEventReducer,
       Cameras: CamerasStore.camerasReducer,
       Camera: CamerasStore.cameraReducer
     }, {
       Slides: [],
       Slide: null,
-      SlideEvent: null,
       Cameras: [],
       Camera: []
     })

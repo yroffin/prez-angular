@@ -1,4 +1,4 @@
-<p-panel header="Slide {{target && target.getSlide().getName()}}" [toggleable]="true">
+<p-panel header="Slide {{target && target.getName()}}" [toggleable]="true">
   <div class="ui-g">
     <div class="ui-g-12">
       <app-prez-3d-scene></app-prez-3d-scene>
@@ -11,8 +11,7 @@
     <div class="ui-g-12">
       <p-tabView>
         <p-tabPanel header="Scene">
-          <p-tree [value]="scene.elements" selectionMode="single" [(selection)]="selectedFile" (onNodeSelect)="nodeSelect($event)"
-            (onNodeUnselect)="nodeUnselect($event)"></p-tree>
+          <app-prez-3d-tree></app-prez-3d-tree>
           <app-prez-3d-element-camera></app-prez-3d-element-camera>
           <app-prez-3d-element-mesh></app-prez-3d-element-mesh>
         </p-tabPanel>
