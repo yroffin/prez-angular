@@ -133,42 +133,48 @@ export class SlidesStore {
                 /**
                  * fix slide position
                  */
-                //state.getSlide().setPosX(<number>action.payload);
+                state.setPosX(<number>action.payload);
+                state = Object.assign(new Slide(), state);
                 return state;
 
             case updateSlidePosY:
                 /**
                  * fix slide position
                  */
-                //state.getSlide().setPosY(<number>action.payload);
+                state.setPosY(<number>action.payload);
+                state = Object.assign(new Slide(), state);
                 return state;
 
             case updateSlidePosZ:
                 /**
                  * fix slide position
                  */
-                //state.getSlide().setPosZ(<number>action.payload);
+                state.setPosZ(<number>action.payload);
+                state = Object.assign(new Slide(), state);
                 return state;
 
             case updateSlideRotX:
                 /**
                  * fix slide position
                  */
-                //state.getSlide().setRotX(<number>action.payload);
+                state.setRotX(<number>action.payload);
+                state = Object.assign(new Slide(), state);
                 return state;
 
             case updateSlideRotY:
                 /**
                  * fix slide position
                  */
-                //state.getSlide().setRotY(<number>action.payload);
+                state.setRotY(<number>action.payload);
+                state = Object.assign(new Slide(), state);
                 return state;
 
             case updateSlideRotZ:
                 /**
                  * fix slide position
                  */
-                //state.getSlide().setRotZ(<number>action.payload);
+                state.setRotZ(<number>action.payload);
+                state = Object.assign(new Slide(), state);
                 return state;
 
             default:

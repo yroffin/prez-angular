@@ -137,7 +137,6 @@ export class Prez3dSceneComponent implements OnInit {
     // dispatch selected event
     if (intersects.length > 0) {
       _.each(intersects, (intersect) => {
-        console.error("inter");
         this.slidesIndex.forEach((slide) => {
           let focusedMesh = this._canvas.findMeshById("threejs", slide.getMeshId());
           if (focusedMesh.uuid === intersect.object.uuid) {

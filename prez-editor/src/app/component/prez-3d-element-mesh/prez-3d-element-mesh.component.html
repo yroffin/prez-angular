@@ -1,31 +1,31 @@
-<div *ngIf="target && targetSlide">
+<div *ngIf="targetSlide">
   <table>
     <tr>
       <td>id</td>
-      <td><input type="text" pInputText [(ngModel)]="target.slide.id" disabled /></td>
+      <td><input type="text" pInputText [(ngModel)]="targetSlide.id" disabled /></td>
     </tr>
     <tr>
       <td>uuid</td>
-      <td><input size="38" type="text" pInputText [(ngModel)]="target.targetMesh.uuid" disabled /></td>
+      <td><input size="38" type="text" pInputText [(ngModel)]="targetMesh.uuid" disabled /></td>
     </tr>
     <tr>
       <td>position</td>
       <td>
-        <p-spinner #spinnerPosX size="6" [(ngModel)]="target.targetSlide.position.x"></p-spinner>
-        <p-spinner #spinnerPosY size="6" [(ngModel)]="target.targetSlide.position.y"></p-spinner>
-        <p-spinner #spinnerPosZ size="6" [(ngModel)]="target.targetSlide.position.z"></p-spinner>
+        <p-spinner #spinnerPosX size="6" [(ngModel)]="targetSlide.position.x"></p-spinner>
+        <p-spinner #spinnerPosY size="6" [(ngModel)]="targetSlide.position.y"></p-spinner>
+        <p-spinner #spinnerPosZ size="6" [(ngModel)]="targetSlide.position.z"></p-spinner>
       </td>
     </tr>
     <tr>
       <td>rotation</td>
       <td>
-        <p-spinner #spinnerRotX size="6" [(ngModel)]="target.targetSlide.rotation.x"></p-spinner>
-        <p-spinner #spinnerRotY size="6" [(ngModel)]="target.targetSlide.rotation.y"></p-spinner>
-        <p-spinner #spinnerRotZ size="6" [(ngModel)]="target.targetSlide.rotation.z"></p-spinner>
+        <p-spinner #spinnerRotX size="6" [(ngModel)]="targetSlide.rotation.x"></p-spinner>
+        <p-spinner #spinnerRotY size="6" [(ngModel)]="targetSlide.rotation.y"></p-spinner>
+        <p-spinner #spinnerRotZ size="6" [(ngModel)]="targetSlide.rotation.z"></p-spinner>
       </td>
     </tr>
   </table>
 
-  <button pButton type="text" (click)="next(target)" label="next"></button>
-  <button pButton type="text" (click)="previous(target)" label="previous"></button>
+  <button pButton type="text" (click)="next()" label="next"></button>
+  <button pButton type="text" (click)="previous()" label="previous"></button>
 </div>

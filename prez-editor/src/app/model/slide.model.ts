@@ -40,7 +40,7 @@ export class Slide {
      * @param position 
      * @param rotation 
      */
-    constructor(id: string, name: string, url: string, position: THREE.Vector3, rotation: THREE.Vector3) {
+    constructor(id: string = null, name: string = null, url: string = null, position: THREE.Vector3 = null, rotation: THREE.Vector3 = null) {
         this.id = id;
         this.name = name;
         this.url = url;
