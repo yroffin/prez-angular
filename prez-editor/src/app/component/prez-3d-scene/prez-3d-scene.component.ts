@@ -42,7 +42,6 @@ import { LoggerService } from '../../service/logger.service';
 import { TweenFactoryService } from '../../service/tween-factory.service';
 import { addOrUpdateSlide } from '../../store/slides.store';
 
-import { selectSlideItemEvent } from '../../store/slides.store';
 import { Camera } from '../../model/camera.model';
 import * as SLIDE from '../../model/slide.model';
 import * as CANVAS from '../../model/canvas.model'
@@ -76,7 +75,6 @@ export class Prez3dSceneComponent implements OnInit {
   private slidesIndex: Map<string, SLIDE.Slide> = new Map<string, SLIDE.Slide>();
 
   private controls: OrbitControls;
-  private firstTime: boolean = true;
 
   /**
    * constructor
@@ -235,18 +233,6 @@ export class Prez3dSceneComponent implements OnInit {
           material.depthWrite = true;
           material.depthTest = true;
         }
-
-        /**
-         * only first time
-         */
-        if (this.firstTime) {
-          this.target = slide;
-          this._store.dispatch({
-            type: selectSlideItemEvent,
-            payload: slide
-          });
-          this.firstTime = false;
-        }
       });
     });
 
@@ -288,6 +274,9 @@ export class Prez3dSceneComponent implements OnInit {
    * @param position 
    */
   private onSlideSelection(item: SLIDE.Slide): void {
+    if(!this.target) {
+      this.target = item;
+    }
     /**
      * find any associated mesh to this slide (by its id)
      */
@@ -353,7 +342,7 @@ export class Prez3dSceneComponent implements OnInit {
        * send selection event
        */
       this._store.dispatch({
-        type: selectSlideItemEvent,
+        type: SLIDES.selectSlideItemEvent,
         payload: this.selected
       });
     }

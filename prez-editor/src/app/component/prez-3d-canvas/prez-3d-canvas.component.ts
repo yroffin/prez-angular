@@ -38,7 +38,7 @@ import { LoggerService } from '../../service/logger.service';
 import { TweenFactoryService } from '../../service/tween-factory.service';
 import { CanvasDataService } from '../../service/canvas-data.service';
 
-import * as SLIDES_EVENT from '../../store/slides.store';
+import * as SLIDES from '../../store/slides.store';
 import * as CAMERAS from '../../store/cameras.store';
 
 import * as SLIDE from '../../model/slide.model';
@@ -161,9 +161,15 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
      * dispatch this new slide
      */
     this.store.dispatch({
-      type: SLIDES_EVENT.addOrUpdateSlide,
+      type: SLIDES.addOrUpdateSlide,
       payload: slide
     });
+    setTimeout(() => {
+      this.store.dispatch({
+        type: SLIDES.selectSlideItemEvent,
+        payload: slide.getNext()
+      });
+    }, 1);
   }
 
   /**
@@ -273,41 +279,6 @@ export class Prez3dCanvasComponent implements OnInit, AfterViewInit {
     });
     // add a single camera
     this.dispatchCameraReset("Default", new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
-  }
-
-  /**
-   * select node event handler
-   * @param event select node event
-   */
-  nodeSelect(event) {
-    if (event.node.data && event.node.data.constructor) {
-      this.msgs = [];
-      if (event.node.data.constructor.name === "PerspectiveCamera") {
-        /**
-         * todo handle camera selection
-         */
-      } else {
-        if (event.node.data.meshId) {
-          this.msgs.push({ severity: 'info', summary: 'Mesh Selected', detail: event.node.data.meshId });
-          /**
-           * send selection event on this slide
-           */
-          this.store.dispatch({
-            type: SLIDES_EVENT.selectSlideItemEvent,
-            payload: null // TODO: select a new slide from current meshid
-          });
-        }
-      }
-    }
-  }
-
-  /**
-   * unselect handler
-   * @param event
-   */
-  nodeUnselect(event) {
-    this.msgs = [];
-    this.msgs.push({ severity: 'info', summary: 'Node Unselected', detail: event.node.label });
   }
 
   /**

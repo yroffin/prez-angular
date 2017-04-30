@@ -9,6 +9,14 @@
       <td><input size="38" type="text" pInputText [(ngModel)]="targetMesh.uuid" disabled /></td>
     </tr>
     <tr>
+      <td>previous</td>
+      <td>{{targetSlide.getPrevious().getName()}}</td>
+    </tr>
+    <tr>
+      <td>next</td>
+      <td>{{targetSlide.getNext().getName()}}</td>
+    </tr>
+    <tr>
       <td>position</td>
       <td>
         <p-spinner #spinnerPosX size="6" [(ngModel)]="targetSlide.position.x"></p-spinner>

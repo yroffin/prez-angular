@@ -55,6 +55,9 @@ export class SlidesStore {
         // build next and previous value
         newState.reduce((previousValue, currentValue, currentIndex, array) => {
             let prev = array[array.length - 1];
+            if(currentIndex > 0) {
+                prev = array[currentIndex - 1];
+            }
             let next = null;
             if (currentIndex == (array.length - 1)) {
                 next = array[0];
@@ -112,13 +115,14 @@ export class SlidesStore {
      * @param state
      * @param action 
      */
-    public static slideReducer(state: Slide, action: Action): Slide {
+    public static slideReducer(state: Slide = new Slide(), action: Action): Slide {
         switch (action.type) {
             case selectSlideItemEvent:
                 /**
                  * select this slide
                  */
                 state = <Slide> action.payload;
+                state = Object.assign(new Slide(), state);
                 return state;
 
             case selectNextSlideItemEvent:
