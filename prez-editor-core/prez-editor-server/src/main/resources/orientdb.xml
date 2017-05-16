@@ -11,17 +11,30 @@
 			<listener ip-address="0.0.0.0" port-range="2424-2430"
 				protocol="binary" />
 			<listener ip-address="0.0.0.0" port-range="2480-2490"
-				protocol="http" />
+				protocol="http">
+				<commands>
+                    <command implementation="com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent" pattern="GET|www GET|studio/ GET| GET|*.htm GET|*.html GET|*.xml GET|*.jpeg GET|*.jpg GET|*.png GET|*.gif GET|*.js GET|*.css GET|*.swf GET|*.ico GET|*.txt GET|*.otf GET|*.pjs GET|*.svg GET|*.json GET|*.woff GET|*.woff2 GET|*.ttf GET|*.svgz" stateful="false">
+                        <parameters>
+                            <entry value="Cache-Control: no-cache, no-store, max-age=0, must-revalidate\r\nPragma: no-cache" name="http.cache:*.htm *.html"/>
+                            <entry value="Cache-Control: max-age=120" name="http.cache:default"/>
+                        </parameters>
+                    </command>
+                </commands>
+                <parameters>
+                    <parameter value="utf-8" name="network.http.charset"/>
+                    <parameter value="true" name="network.http.jsonResponseError"/>
+                </parameters>
+			</listener>
 		</listeners>
 	</network>
 	<users>
-		<user name="root" password="ThisIsA_TEST" resources="*" />
+		<user name="root" password="root" resources="*" />
 	</users>
 	<properties>
 		<entry name="orientdb.www.path"
-			value="C:/work/dev/orientechnologies/orientdb/releases/1.0rc1-SNAPSHOT/www/" />
+			value="Y:/git/prez-angular/prez-editor-core/prez-editor-server/www/" />
 		<entry name="orientdb.config.file"
-			value="C:/work/dev/orientechnologies/orientdb/releases/1.0rc1-SNAPSHOT/config/orientdb-server-config.xml" />
+			value="Y:/git/prez-angular/prez-editor-core/prez-editor-server/orientdb-server-config.xml" />
 		<entry name="server.cache.staticResources" value="false" />
 		<entry name="log.console.level" value="info" />
 		<entry name="log.file.level" value="fine" />

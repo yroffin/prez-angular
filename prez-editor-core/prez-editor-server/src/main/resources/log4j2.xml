@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN" packages="org.prez-editor.core.log4j2">
-  <Appenders>
-	<RollingFile name="RollingFile" fileName="${sys:prez-editor.log.dir}/prez-editor.log" filePattern="${sys:prez-editor.log.dir}/prez-editor-%d{MM-dd-yyyy}.log.gz"
+	<Properties>
+		<Property name="logdir">${sys:prez-editor.log.dir}</Property>
+	</Properties>
+    <Appenders>
+	<RollingFile name="RollingFile" fileName="${logdir}/prez-editor.log" filePattern="${logdir}/prez-editor-%d{MM-dd-yyyy}.log.gz"
                  ignoreExceptions="false">
       <PatternLayout pattern="%d{DEFAULT} [%t] %-5level %logger{36} - %msg%n"/>
       <TimeBasedTriggeringPolicy />
     </RollingFile>
-	<RollingFile name="RollingSessionFile" fileName="${sys:prez-editor.log.dir}/prez-editor-sessions.log" filePattern="${sys:prez-editor.log.dir}/prez-editor-sessions-%d{MM-dd-yyyy}.log.gz"
+	<RollingFile name="RollingSessionFile" fileName="${logdir}/prez-editor-sessions.log" filePattern="${logdir}/prez-editor-sessions-%d{MM-dd-yyyy}.log.gz"
                  ignoreExceptions="false">
       <PatternLayout pattern="%d{DEFAULT} [%t] %-5level %logger{36} - %msg%n"/>
       <TimeBasedTriggeringPolicy />
     </RollingFile>
-	<RollingFile name="RollingAccessFile" fileName="${sys:prez-editor.log.dir}/prez-editor-access.log" filePattern="${sys:prez-editor.log.dir}/prez-editor-access-%d{MM-dd-yyyy}.log.gz"
+	<RollingFile name="RollingAccessFile" fileName="${logdir}/prez-editor-access.log" filePattern="${logdir}/prez-editor-access-%d{MM-dd-yyyy}.log.gz"
                  ignoreExceptions="false">
       <PatternLayout pattern="%d{DEFAULT} %msg%n"/>
       <TimeBasedTriggeringPolicy />
@@ -30,7 +33,6 @@
     <Root level="info">
       <AppenderRef ref="Console" level="info" />
       <AppenderRef ref="RollingFile" level="info" />
-      <AppenderRef ref="MongoDbAppender" level="info" />
     </Root>
   </Loggers>
 </Configuration>

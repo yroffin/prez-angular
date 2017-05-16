@@ -54,7 +54,7 @@ public class PrezEditorCoreServer {
 	    URL[] urls = ((URLClassLoader)cl).getURLs();
 
 	    for(URL url: urls){
-	    	logger.info("Classpath {}", url.getFile());
+	    	logger.debug("Classpath {}", url.getFile());
 	    }
 	    
 		/**
@@ -77,11 +77,11 @@ public class PrezEditorCoreServer {
 		/**
 		 * fix properties
 		 */
-		if(System.getProperty("jarvis.user.dir") == null) {
-			System.setProperty("jarvis.user.dir", normalizedPath);
+		if(System.getProperty("prez-editor.user.dir") == null) {
+			System.setProperty("prez-editor.user.dir", normalizedPath);
 		}
-		if(System.getProperty("jarvis.log.dir") == null) {
-			System.setProperty("jarvis.log.dir", normalizedPath);
+		if(System.getProperty("prez-editor.log.dir") == null) {
+			System.setProperty("prez-editor.log.dir", normalizedPath);
 		}
 		return normalizedPath;
 	}}

@@ -20,6 +20,18 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.pac4j.core.client.Clients;
+import org.pac4j.core.config.Config;
+import org.pac4j.core.profile.UserProfile;
+import org.pac4j.sparkjava.DefaultHttpActionAdapter;
+import org.prez.core.OrientDBEmbeddable;
+import org.prez.core.SwaggerParser;
+import org.prez.core.resources.CoreResources;
+import org.prez.core.security.PrezAccessLogFilter;
+import org.prez.core.security.PrezAuthorizerUsers;
+import org.prez.core.security.PrezCoreClient;
+import org.prez.core.security.PrezTokenValidationFilter;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +42,14 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.Contact;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
-import jersey.repackaged.com.google.common.collect.ImmutableList;
+import prez.core.model.bean.config.Oauth2Config;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -56,7 +69,7 @@ info = @Info(
 		title = "Jarvis core system",
 		contact = @Contact(
 				name = "Yannick Roffin", url = "https://yroffin.github.io"
-				)
+		)
 ),
 schemes = { SwaggerDefinition.Scheme.HTTP, SwaggerDefinition.Scheme.HTTPS },
 consumes = { "application/json" },
@@ -66,6 +79,7 @@ tags = { @Tag(name = "swagger") }
 public class CoreServerDaemon {
 	protected Logger logger = LoggerFactory.getLogger(CoreServerDaemon.class);
 
+	@SuppressWarnings("unused")
 	@Autowired private ApplicationContext applicationContext;
 	
 	@Autowired
@@ -74,6 +88,9 @@ public class CoreServerDaemon {
 	@Autowired
 	CoreResources coreResources;
 
+	@Autowired
+	OrientDBEmbeddable orientDBEmbeddable;
+	
 	protected ObjectMapper mapper = new ObjectMapper();
 	
 	/**
@@ -83,29 +100,21 @@ public class CoreServerDaemon {
 	public void server() {
 		
 		for(String key : ImmutableList.of(
-				"jarvis.user.dir",
-				"jarvis.log.dir",
-				"jarvis.server.url",
-				"jarvis.neo4j.url",
-				"jarvis.elasticsearch.url",
-				"jarvis.sunset.sunrise.url")) {
+				"prez-editor.user.dir",
+				"prez-editor.log.dir")) {
 			logger.info("{} = {}", key, env.getProperty(key));
 		}
 		
-		String iface = env.getProperty("jarvis.server.interface");
-		int port = Integer.parseInt(env.getProperty("jarvis.server.port"));
+		String iface = env.getProperty("jarvis.server.interface","0.0.0.0");
+		int port = Integer.parseInt(env.getProperty("prez-editor.server.port","80"));
 		spark.Spark.ipAddress(iface);
-		spark.Spark.threadPool(Integer.parseInt(env.getProperty("jarvis.server.pool.thread","32")));
+		spark.Spark.port(port);
+		spark.Spark.threadPool(Integer.parseInt(env.getProperty("prez-editor.server.pool.thread","32")));
 		
 		/**
 		 * port
 		 */
 		spark.Spark.port(port);
-
-		/**
-		 * websockets
-		 */
-		coreWebsocket.mount();
 
 		/**
 		 * mount resources
@@ -121,17 +130,17 @@ public class CoreServerDaemon {
 		/**
 		 * build security config
 		 */
-		final Clients clients = new Clients(new JarvisCoreClient());
+		final Clients clients = new Clients(new PrezCoreClient());
 		final Config config = new Config(clients);
 		final String[] users = env.getProperty("jarvis.oauth2.users","empty").split(",");
-		config.addAuthorizer("usersCheck", new JarvisAuthorizerUsers(users));
+		config.addAuthorizer("usersCheck", new PrezAuthorizerUsers(users));
 		config.setHttpActionAdapter(new DefaultHttpActionAdapter());
 		
 		/**
 		 * all api must be validated with token
 		 */
 		final String[] excludes = env.getProperty("jarvis.oauth2.excludes","").split(",");
-		spark.Spark.before("/api/*", new JarvisTokenValidationFilter(config, "JarvisCoreClient", "securityHeaders,csrfToken,usersCheck", excludes));
+		spark.Spark.before("/api/*", new PrezTokenValidationFilter(config, "JarvisCoreClient", "securityHeaders,csrfToken,usersCheck", excludes));
 		
 		/**
 		 * ident api
@@ -203,12 +212,12 @@ public class CoreServerDaemon {
 		 * Build swagger json description
 		 */
 		final String swaggerJson;
-		swaggerJson = SwaggerParser.getSwaggerJson("org.jarvis.core");
+		swaggerJson = SwaggerParser.getSwaggerJson("org.prez.core");
 		spark.Spark.get("/api/swagger", (req, res) -> {
 			return swaggerJson;
 		});
 
-		spark.Spark.after("/*", new JarvisAccessLogFilter());
+		spark.Spark.after("/*", new PrezAccessLogFilter());
 	}
 
 	/**
@@ -219,11 +228,11 @@ public class CoreServerDaemon {
 		Reflections reflections = new Reflections(packageName);
 		Set<Class<?>> apiClasses = reflections.getTypesAnnotatedWith(Api.class);
 		for(Class<?> klass : apiClasses) {
-			ApiResources<?, ?> bean = (ApiResources<?, ?>) applicationContext.getBean(klass);
-			logger.info("Mount resource {}", bean);
-			bean.mount();
 		}
 	}
 	
-	protected final Logger accesslog = LoggerFactory.getLogger(JarvisAccessLogFilter.class);
+	/**
+	 * access log
+	 */
+	protected final Logger accesslog = LoggerFactory.getLogger(PrezAccessLogFilter.class);
 }

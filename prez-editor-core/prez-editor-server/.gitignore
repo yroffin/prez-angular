@@ -1,1 +1,10 @@
 /target/
+/prez-editor-05-04-2017.log.gz
+/prez-editor-access.log
+/prez-editor-sessions.log
+/prez-editor.log
+/www/
+/databases/
+/.settings/
+/.classpath
+/.project
